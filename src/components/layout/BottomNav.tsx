@@ -3,11 +3,11 @@ import { Home, Newspaper, TrendingUp, Search, Grid3X3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/', icon: Home, label: 'Utama' },
-  { href: '/terkini', icon: Newspaper, label: 'Terkini' },
-  { href: '/trending', icon: TrendingUp, label: 'Trending' },
-  { href: '/kategori', icon: Grid3X3, label: 'Kategori' },
-  { href: '/cari', icon: Search, label: 'Cari' },
+  { href: '/', icon: Home, label: 'முகப்பு' },
+  { href: '/terkini', icon: Newspaper, label: 'சமீபத்திய' },
+  { href: '/trending', icon: TrendingUp, label: 'டிரெண்டிங்' },
+  { href: '/kategori', icon: Grid3X3, label: 'வகைகள்' },
+  { href: '/cari', icon: Search, label: 'தேடல்' },
 ];
 
 export function BottomNav() {

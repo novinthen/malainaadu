@@ -43,16 +43,16 @@ export function MobileNav({
       <SheetTrigger asChild className="lg:hidden">
         <Button variant="ghost" size="icon">
           <Menu className="h-5 w-5" />
-          <span className="sr-only">Menu</span>
+          <span className="sr-only">மெனு</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-        <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
+        <SheetTitle className="sr-only">வழிசெலுத்தல் மெனு</SheetTitle>
         <div className="flex flex-col gap-6 pt-6">
           {/* Categories */}
           <div className="flex flex-col gap-2">
             <span className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Kategori
+              வகைகள்
             </span>
             {categories.map((category) => (
               <Link
@@ -69,7 +69,7 @@ export function MobileNav({
           {/* Other links */}
           <div className="flex flex-col gap-2">
             <span className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Lain-lain
+              மற்றவை
             </span>
             <Link
               to="/cari"
@@ -77,7 +77,7 @@ export function MobileNav({
               className="flex items-center gap-2 rounded-md px-2 py-2.5 text-base font-medium text-foreground transition-colors hover:bg-muted"
             >
               <Search className="h-4 w-4" />
-              Cari Berita
+              செய்தி தேடல்
             </Link>
             <Link
               to="/trending"
@@ -85,14 +85,14 @@ export function MobileNav({
               className="flex items-center gap-2 rounded-md px-2 py-2.5 text-base font-medium text-foreground transition-colors hover:bg-muted"
             >
               <TrendingUp className="h-4 w-4" />
-              Trending
+              டிரெண்டிங்
             </Link>
           </div>
 
           {/* Auth section */}
           <div className="flex flex-col gap-2 border-t pt-4">
             <span className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Akaun
+              கணக்கு
             </span>
             {user ? (
               <>
@@ -105,7 +105,7 @@ export function MobileNav({
                   </Avatar>
                   <div className="flex flex-col">
                     <p className="text-sm font-medium">
-                      {user.user_metadata?.full_name || 'Pengguna'}
+                      {user.user_metadata?.full_name || 'பயனர்'}
                     </p>
                     <p className="text-xs text-muted-foreground">{user.email}</p>
                   </div>
@@ -118,7 +118,7 @@ export function MobileNav({
                   className="flex items-center gap-2 rounded-md px-2 py-2.5 text-base font-medium text-destructive transition-colors hover:bg-muted"
                 >
                   <LogOut className="h-4 w-4" />
-                  Log Keluar
+                  வெளியேறு
                 </button>
               </>
             ) : (
@@ -131,7 +131,7 @@ export function MobileNav({
                 className="flex items-center gap-2 rounded-md bg-primary px-2 py-2.5 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 <User className="h-4 w-4" />
-                {isSigningIn ? 'Memuatkan...' : 'Log Masuk dengan Google'}
+                {isSigningIn ? 'ஏற்றுகிறது...' : 'Google மூலம் உள்நுழையுங்கள்'}
               </button>
             )}
           </div>

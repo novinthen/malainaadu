@@ -20,7 +20,7 @@ export function Header() {
   const handleSignIn = () => {
     signInWithGoogle.mutate(undefined, {
       onError: (error) => {
-        toast.error('Gagal log masuk dengan Google');
+        toast.error('Google மூலம் உள்நுழைய முடியவில்லை');
         console.error('Google sign-in error:', error);
       },
     });
@@ -28,9 +28,9 @@ export function Header() {
 
   const handleSignOut = () => {
     signOut.mutate(undefined, {
-      onSuccess: () => toast.success('Berjaya log keluar'),
+      onSuccess: () => toast.success('வெற்றிகரமாக வெளியேறினீர்கள்'),
       onError: (error) => {
-        toast.error('Gagal log keluar');
+        toast.error('வெளியேற முடியவில்லை');
         console.error('Sign out error:', error);
       },
     });

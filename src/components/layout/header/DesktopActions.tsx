@@ -25,13 +25,13 @@ export function DesktopActions({
       <Button variant="ghost" size="icon" asChild>
         <Link to="/cari">
           <Search className="h-5 w-5" />
-          <span className="sr-only">Cari</span>
+          <span className="sr-only">தேடல்</span>
         </Link>
       </Button>
       <Button variant="ghost" size="icon" asChild>
         <Link to="/trending">
           <TrendingUp className="h-5 w-5" />
-          <span className="sr-only">Trending</span>
+          <span className="sr-only">டிரெண்டிங்</span>
         </Link>
       </Button>
 

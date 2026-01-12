@@ -1,16 +1,16 @@
 /**
  * UI Constants
- * Centralized UI strings, labels, and mappings
+ * Centralized UI strings, labels, and mappings in Malaysian Tamil
  */
 
 import type { ArticleStatus } from '@/types/database';
 
-// Status labels in Malay
+// Status labels in Tamil
 export const STATUS_LABELS: Record<ArticleStatus, string> = {
-  draft: 'Draf',
-  pending: 'Menunggu',
-  published: 'Diterbitkan',
-  rejected: 'Ditolak',
+  draft: 'வரைவு',
+  pending: 'நிலுவையில்',
+  published: 'வெளியிடப்பட்டது',
+  rejected: 'நிராகரிக்கப்பட்டது',
 };
 
 // Status badge colors using semantic tokens
@@ -21,62 +21,62 @@ export const STATUS_COLORS: Record<ArticleStatus, string> = {
   rejected: 'bg-destructive/10 text-destructive',
 };
 
-// Common UI text strings in Malay
+// Common UI text strings in Malaysian Tamil
 export const UI_TEXT = {
   // Loading states
-  loading: 'Memuatkan...',
+  loading: 'ஏற்றுகிறது...',
   
   // Empty states
-  noResults: 'Tiada hasil ditemui',
-  noArticles: 'Tiada artikel ditemui',
+  noResults: 'முடிவுகள் இல்லை',
+  noArticles: 'செய்திகள் இல்லை',
   
   // Actions
-  save: 'Simpan',
-  cancel: 'Batal',
-  delete: 'Padam',
-  edit: 'Edit',
-  view: 'Lihat',
-  search: 'Cari',
-  filter: 'Tapis',
-  back: 'Kembali',
-  share: 'Kongsi',
+  save: 'சேமி',
+  cancel: 'ரத்து',
+  delete: 'நீக்கு',
+  edit: 'திருத்து',
+  view: 'பார்',
+  search: 'தேடு',
+  filter: 'வடிகட்டு',
+  back: 'திரும்பு',
+  share: 'பகிர்',
   
   // Auth
-  signIn: 'Log Masuk',
-  signOut: 'Log Keluar',
-  signInWithGoogle: 'Log Masuk dengan Google',
+  signIn: 'உள்நுழை',
+  signOut: 'வெளியேறு',
+  signInWithGoogle: 'Google மூலம் உள்நுழையுங்கள்',
   
   // Article
-  readMore: 'Baca lagi',
-  readOriginal: 'Baca penuh di sumber asal',
-  views: 'paparan',
-  minRead: 'min bacaan',
-  breakingNews: 'Terkini',
-  featured: 'Pilihan',
+  readMore: 'மேலும் படிக்க',
+  readOriginal: 'மூல தளத்தில் முழுமையாக படிக்க',
+  views: 'பார்வைகள்',
+  minRead: 'நிமிட வாசிப்பு',
+  breakingNews: 'முக்கிய செய்தி',
+  featured: 'சிறப்பு',
   
   // Navigation
-  home: 'Utama',
-  categories: 'Kategori',
-  trending: 'Trending',
-  latest: 'Terkini',
+  home: 'முகப்பு',
+  categories: 'வகைகள்',
+  trending: 'டிரெண்டிங்',
+  latest: 'சமீபத்திய',
   
   // Errors
-  notFound: 'Tidak Ditemui',
-  articleNotFound: 'Berita Tidak Ditemui',
-  articleNotFoundDesc: 'Maaf, berita yang anda cari tidak dapat ditemui.',
-  errorOccurred: 'Ralat telah berlaku',
+  notFound: 'கிடைக்கவில்லை',
+  articleNotFound: 'செய்தி கிடைக்கவில்லை',
+  articleNotFoundDesc: 'மன்னிக்கவும், நீங்கள் தேடும் செய்தி கிடைக்கவில்லை.',
+  errorOccurred: 'பிழை ஏற்பட்டது',
   
   // Success messages
-  linkCopied: 'Pautan telah disalin!',
-  articleUpdated: 'Artikel telah dikemaskini!',
-  articleDeleted: 'Artikel telah dipadam!',
+  linkCopied: 'இணைப்பு நகலெடுக்கப்பட்டது!',
+  articleUpdated: 'செய்தி புதுப்பிக்கப்பட்டது!',
+  articleDeleted: 'செய்தி நீக்கப்பட்டது!',
   
   // Error messages
-  updateFailed: 'Gagal mengemaskini artikel',
-  deleteFailed: 'Gagal memadam artikel',
-  signInFailed: 'Gagal log masuk dengan Google',
-  signOutFailed: 'Gagal log keluar',
-  signOutSuccess: 'Berjaya log keluar',
+  updateFailed: 'செய்தியைப் புதுப்பிக்க முடியவில்லை',
+  deleteFailed: 'செய்தியை நீக்க முடியவில்லை',
+  signInFailed: 'Google மூலம் உள்நுழைய முடியவில்லை',
+  signOutFailed: 'வெளியேற முடியவில்லை',
+  signOutSuccess: 'வெற்றிகரமாக வெளியேறினீர்கள்',
 } as const;
 
 // Default limits

@@ -10,7 +10,7 @@ export function AuthButton({ onSignIn, isLoading }: AuthButtonProps) {
   return (
     <Button onClick={onSignIn} disabled={isLoading} size="sm">
       <User className="mr-2 h-4 w-4" />
-      {isLoading ? 'Memuatkan...' : 'Log Masuk'}
+      {isLoading ? 'ஏற்றுகிறது...' : 'உள்நுழை'}
     </Button>
   );
 }
