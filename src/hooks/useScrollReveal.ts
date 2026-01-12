@@ -8,6 +8,14 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(threshol
     const element = ref.current;
     if (!element) return;
 
+    // Check if element is already visible on mount
+    const rect = element.getBoundingClientRect();
+    const isInViewport = rect.top < window.innerHeight && rect.bottom >= 0;
+    if (isInViewport) {
+      setIsVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -15,7 +23,7 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(threshol
           observer.disconnect();
         }
       },
-      { threshold }
+      { threshold, rootMargin: '50px' }
     );
 
     observer.observe(element);
