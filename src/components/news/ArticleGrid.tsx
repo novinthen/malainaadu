@@ -11,7 +11,7 @@ interface ArticleGridProps {
 }
 
 export function ArticleGrid({ articles, isLoading, emptyMessage = 'செய்திகள் கிடைக்கவில்லை.' }: ArticleGridProps) {
-  const { ref, isVisible } = useScrollReveal<HTMLDivElement>(0.05);
+  const { ref, isVisible } = useScrollReveal<HTMLDivElement>(0.05, [articles?.length]);
   if (isLoading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
