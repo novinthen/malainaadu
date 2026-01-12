@@ -12,8 +12,8 @@ export default function TrendingPage() {
   return (
     <MainLayout>
       <SEOHead
-        title="Berita Trending"
-        description="Berita paling popular dan trending di Malaysia. Lihat berita yang paling banyak dibaca oleh pembaca Malaysia."
+        title="டிரெண்டிங் செய்திகள்"
+        description="மலேசியாவில் மிகவும் பிரபலமான மற்றும் டிரெண்டிங் செய்திகள். மலேசிய வாசகர்களால் அதிகம் படிக்கப்படும் செய்திகளைப் பாருங்கள்."
         canonicalUrl={ROUTES.TRENDING}
       />
 
@@ -25,10 +25,10 @@ export default function TrendingPage() {
             </div>
             <div>
               <h1 className="font-display text-2xl font-bold md:text-3xl">
-                Berita Trending
+                டிரெண்டிங் செய்திகள்
               </h1>
               <p className="text-sm text-muted-foreground">
-                Berita paling popular berdasarkan jumlah bacaan
+                அதிகம் படிக்கப்படும் பிரபலமான செய்திகள்
               </p>
             </div>
           </div>
@@ -52,7 +52,7 @@ export default function TrendingPage() {
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <TrendingUp className="h-12 w-12 text-muted-foreground" />
               <p className="mt-4 text-muted-foreground">
-                Tiada berita trending buat masa ini.
+                தற்போது டிரெண்டிங் செய்திகள் இல்லை.
               </p>
             </div>
           )}

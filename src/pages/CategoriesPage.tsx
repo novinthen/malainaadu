@@ -13,15 +13,15 @@ export default function CategoriesPage() {
   return (
     <MainLayout>
       <SEOHead
-        title="Semua Kategori"
-        description="Layari semua kategori berita di Berita Malaysia. Politik, sukan, hiburan, ekonomi, teknologi, kesihatan dan banyak lagi."
+        title="அனைத்து வகைகள்"
+        description="செய்தி மலேசியாவின் அனைத்து செய்தி வகைகளையும் பாருங்கள். அரசியல், விளையாட்டு, பொழுதுபோக்கு, பொருளாதாரம், தொழில்நுட்பம், சுகாதாரம் மற்றும் பல."
         canonicalUrl={ROUTES.CATEGORIES}
       />
 
       <section className="py-6 md:py-8">
         <div className="container">
           <h1 className="mb-6 font-display text-2xl font-bold md:text-3xl">
-            Semua Kategori
+            அனைத்து வகைகள்
           </h1>
 
           {isLoading ? (

@@ -19,21 +19,21 @@ export default function CategoryPage() {
     limit: 24,
   });
 
-  const categoryName = category?.name || 'Kategori';
+  const categoryName = category?.name || 'வகை';
   const categoryIcon = getCategoryIcon(slug || '');
   const canonicalUrl = ROUTES.CATEGORY(slug || '');
 
   const breadcrumbItems = [
-    { name: 'Utama', url: '/' },
-    { name: 'Kategori', url: ROUTES.CATEGORIES },
+    { name: 'முகப்பு', url: '/' },
+    { name: 'வகைகள்', url: ROUTES.CATEGORIES },
     { name: categoryName, url: canonicalUrl },
   ];
 
   return (
     <MainLayout>
       <SEOHead
-        title={`Berita ${categoryName}`}
-        description={`Berita terkini kategori ${categoryName}. Dapatkan berita ${categoryName.toLowerCase()} terbaru dari pelbagai sumber terpercaya di Malaysia.`}
+        title={`${categoryName} செய்திகள்`}
+        description={`${categoryName} வகையின் சமீபத்திய செய்திகள். மலேசியாவின் நம்பகமான ஊடகங்களிலிருந்து ${categoryName.toLowerCase()} தொடர்பான புதிய செய்திகளைப் பெறுங்கள்.`}
         canonicalUrl={canonicalUrl}
       />
       <BreadcrumbSchema items={breadcrumbItems} />
@@ -53,7 +53,7 @@ export default function CategoryPage() {
           <ArticleGrid
             articles={articles}
             isLoading={isLoading}
-            emptyMessage={`Tiada berita dalam kategori ${categoryName}.`}
+            emptyMessage={`${categoryName} வகையில் செய்திகள் இல்லை.`}
           />
         </div>
       </section>

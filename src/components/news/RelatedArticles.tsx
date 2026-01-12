@@ -76,7 +76,7 @@ export function RelatedArticles({
       {categoryArticles && categoryArticles.length > 0 && (
         <div className="mb-8">
           <h2 className="mb-4 font-display text-lg font-bold md:text-xl">
-            Berita Berkaitan
+            தொடர்புடைய செய்திகள்
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {categoryArticles.map((article) => (
@@ -90,7 +90,7 @@ export function RelatedArticles({
       {sourceArticles && sourceArticles.length > 0 && (
         <div>
           <h2 className="mb-4 font-display text-lg font-bold md:text-xl">
-            Lagi dari {sourceArticles[0]?.source?.name}
+            {sourceArticles[0]?.source?.name} இலிருந்து மேலும்
           </h2>
           <div className="space-y-2">
             {sourceArticles.map((article) => (
