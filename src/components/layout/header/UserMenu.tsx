@@ -31,7 +31,7 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
           <Avatar className="h-8 w-8">
             <AvatarImage
               src={user.user_metadata?.avatar_url}
-              alt={user.user_metadata?.full_name || user.email || 'User'}
+              alt={user.user_metadata?.full_name || user.email || 'பயனர்'}
             />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
@@ -45,7 +45,7 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
           </Avatar>
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {user.user_metadata?.full_name || 'Pengguna'}
+              {user.user_metadata?.full_name || 'பயனர்'}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
@@ -58,7 +58,7 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
           className="text-destructive focus:text-destructive"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          Log Keluar
+          வெளியேறு
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
