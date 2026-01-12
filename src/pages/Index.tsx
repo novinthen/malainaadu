@@ -51,12 +51,12 @@ export default function Index() {
       <section className="py-6 md:py-8">
         <div className="container">
           <h2 className="mb-4 font-display text-lg font-bold md:text-xl">
-            Berita Terkini
+            சமீபத்திய செய்திகள்
           </h2>
           <ArticleGrid
             articles={articles}
             isLoading={latestLoading}
-            emptyMessage="Tiada berita terkini."
+            emptyMessage="சமீபத்திய செய்திகள் இல்லை."
           />
         </div>
       </section>
