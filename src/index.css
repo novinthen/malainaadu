@@ -146,6 +146,103 @@
     background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--gold)) 100%);
   }
 
+  /* Drop cap styling for articles */
+  .drop-cap::first-letter {
+    float: left;
+    font-size: 4rem;
+    line-height: 0.85;
+    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', serif;
+    color: hsl(var(--primary));
+    margin-right: 0.75rem;
+    margin-top: 0.15rem;
+  }
+
+  @media (min-width: 768px) {
+    .drop-cap::first-letter {
+      font-size: 5rem;
+      margin-right: 1rem;
+    }
+  }
+
+  /* Pull quote styling */
+  .pull-quote {
+    @apply relative my-8 mx-auto max-w-lg px-8 py-6;
+    @apply text-xl md:text-2xl font-semibold leading-relaxed;
+    @apply text-center italic text-foreground/90;
+  }
+
+  .pull-quote::before,
+  .pull-quote::after {
+    content: '';
+    @apply absolute left-1/2 -translate-x-1/2 w-16 h-0.5;
+    background: linear-gradient(90deg, transparent, hsl(var(--accent)), transparent);
+  }
+
+  .pull-quote::before {
+    @apply top-0;
+  }
+
+  .pull-quote::after {
+    @apply bottom-0;
+  }
+
+  /* Scroll reveal animations */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  }
+
+  .reveal-stagger.visible > *:nth-child(1) { transition-delay: 0ms; opacity: 1; transform: translateY(0); }
+  .reveal-stagger.visible > *:nth-child(2) { transition-delay: 75ms; opacity: 1; transform: translateY(0); }
+  .reveal-stagger.visible > *:nth-child(3) { transition-delay: 150ms; opacity: 1; transform: translateY(0); }
+  .reveal-stagger.visible > *:nth-child(4) { transition-delay: 225ms; opacity: 1; transform: translateY(0); }
+  .reveal-stagger.visible > *:nth-child(5) { transition-delay: 300ms; opacity: 1; transform: translateY(0); }
+  .reveal-stagger.visible > *:nth-child(6) { transition-delay: 375ms; opacity: 1; transform: translateY(0); }
+
+  /* Card hover effects */
+  .card-premium {
+    @apply relative transition-all duration-300 ease-out;
+  }
+
+  .card-premium::after {
+    content: '';
+    @apply absolute bottom-0 left-0 right-0 h-1 rounded-b-lg;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease-out;
+  }
+
+  .card-premium:hover {
+    @apply shadow-xl;
+    transform: translateY(-4px);
+  }
+
+  .card-premium:hover::after {
+    transform: scaleX(1);
+  }
+
+  .card-premium:hover .card-image {
+    transform: scale(1.05);
+  }
+
+  .card-premium:hover .card-title {
+    @apply text-primary;
+  }
+
   /* Breaking news ticker animation */
   @keyframes ticker {
     0% {
