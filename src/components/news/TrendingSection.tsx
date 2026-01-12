@@ -17,12 +17,12 @@ export function TrendingSection() {
               <TrendingUp className="h-4 w-4 text-accent-foreground" />
             </div>
             <h2 className="font-display text-lg font-bold md:text-xl">
-              Trending Sekarang
+              டிரெண்டிங்
             </h2>
           </div>
           <Button variant="ghost" size="sm" asChild className="hidden sm:flex">
             <Link to="/trending">
-              Lihat Semua
+              அனைத்தும்
               <ChevronRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
@@ -74,13 +74,13 @@ export function TrendingSection() {
             ))}
           </div>
         ) : (
-          <p className="text-center text-muted-foreground">Tiada berita trending.</p>
+          <p className="text-center text-muted-foreground">டிரெண்டிங் செய்திகள் இல்லை.</p>
         )}
 
         <div className="mt-4 flex justify-center sm:hidden">
           <Button variant="outline" size="sm" asChild>
             <Link to="/trending">
-              Lihat Semua Trending
+              அனைத்து டிரெண்டிங்
               <ChevronRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>

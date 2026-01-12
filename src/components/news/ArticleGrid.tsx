@@ -10,7 +10,7 @@ interface ArticleGridProps {
   emptyMessage?: string;
 }
 
-export function ArticleGrid({ articles, isLoading, emptyMessage = 'Tiada berita ditemui.' }: ArticleGridProps) {
+export function ArticleGrid({ articles, isLoading, emptyMessage = 'செய்திகள் கிடைக்கவில்லை.' }: ArticleGridProps) {
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>(0.05);
   if (isLoading) {
     return (

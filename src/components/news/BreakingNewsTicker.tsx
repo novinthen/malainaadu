@@ -13,7 +13,7 @@ export function BreakingNewsTicker() {
         <div className="flex shrink-0 items-center gap-1.5 rounded bg-accent px-2 py-1 text-accent-foreground">
           <span className="h-2 w-2 animate-pulse-dot rounded-full bg-current" />
           <span className="text-xs font-bold uppercase tracking-wider">
-            Terkini
+            முக்கிய
           </span>
         </div>
         <div className="relative flex-1 overflow-hidden">
