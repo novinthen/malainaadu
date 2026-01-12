@@ -110,7 +110,14 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: 'Noto Sans Tamil', Inter, system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Better line height for Tamil text */
+  .prose p,
+  .prose li {
+    line-height: 2;
   }
 
   /* Custom scrollbar */
