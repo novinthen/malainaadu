@@ -1,7 +1,9 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { CategoryTabs } from '@/components/news/CategoryTabs';
 import { ArticleGrid } from '@/components/news/ArticleGrid';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { useArticles } from '@/hooks/useArticles';
+import { ROUTES } from '@/constants/routes';
 import { Newspaper } from 'lucide-react';
 
 export default function LatestPage() {
@@ -12,6 +14,12 @@ export default function LatestPage() {
 
   return (
     <MainLayout>
+      <SEOHead
+        title="Berita Terkini"
+        description="Berita terkini dan terbaru dari semua sumber di Malaysia. Dapatkan berita paling baharu dari pelbagai kategori."
+        canonicalUrl={ROUTES.LATEST}
+      />
+
       <CategoryTabs />
       
       <section className="py-6 md:py-8">
