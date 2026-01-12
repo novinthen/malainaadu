@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(threshold = 0.1) {
+export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(
+  threshold = 0.1,
+  dependencies: unknown[] = []
+) {
   const ref = useRef<T>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -8,7 +11,7 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(threshol
     const element = ref.current;
     if (!element) return;
 
-    // Check if element is already visible on mount
+    // Check if element is already visible on mount or when dependencies change
     const rect = element.getBoundingClientRect();
     const isInViewport = rect.top < window.innerHeight && rect.bottom >= 0;
     if (isInViewport) {
@@ -29,7 +32,7 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(threshol
     observer.observe(element);
 
     return () => observer.disconnect();
-  }, [threshold]);
+  }, [threshold, ...dependencies]);
 
   return { ref, isVisible };
 }
