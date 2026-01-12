@@ -5,86 +5,87 @@ export default function PrivacyPage() {
   return (
     <MainLayout>
       <SEOHead
-        title="Polisi Privasi"
-        description="Polisi privasi Berita Malaysia menerangkan bagaimana kami mengumpul, menggunakan, dan melindungi maklumat peribadi anda."
-        canonicalUrl="/privasi"
+        title="தனியுரிமைக் கொள்கை"
+        description="செய்தி மலேசியாவின் தனியுரிமைக் கொள்கை உங்கள் தனிப்பட்ட தகவல்களை நாங்கள் எவ்வாறு சேகரிக்கிறோம், பயன்படுத்துகிறோம் மற்றும் பாதுகாக்கிறோம் என்பதை விளக்குகிறது."
+        canonicalUrl="/thaniyurimai"
       />
 
       <section className="py-6 md:py-12">
         <div className="container max-w-4xl">
           <h1 className="mb-6 font-display text-3xl font-bold md:text-4xl">
-            Polisi Privasi
+            தனியுரிமைக் கொள்கை
           </h1>
 
           <div className="prose prose-lg max-w-none dark:prose-invert">
             <p className="lead text-xl text-muted-foreground">
-              Polisi privasi ini menerangkan bagaimana Berita Malaysia mengumpul,
-              menggunakan, dan melindungi maklumat anda.
+              இந்த தனியுரிமைக் கொள்கை செய்தி மலேசியா உங்கள் தகவல்களை எவ்வாறு 
+              சேகரிக்கிறது, பயன்படுத்துகிறது மற்றும் பாதுகாக்கிறது என்பதை விளக்குகிறது.
             </p>
 
             <p>
-              <strong>Tarikh Kemas Kini Terakhir:</strong> 1 Januari 2026
+              <strong>கடைசி புதுப்பிப்பு தேதி:</strong> 1 ஜனவரி 2026
             </p>
 
-            <h2>1. Maklumat Yang Kami Kumpul</h2>
+            <h2>1. நாங்கள் சேகரிக்கும் தகவல்கள்</h2>
             <p>
-              Kami mungkin mengumpulkan maklumat berikut apabila anda melawat laman web kami:
-            </p>
-            <ul>
-              <li>Alamat IP dan maklumat pelayar web</li>
-              <li>Laman yang dilawati dan masa lawatan</li>
-              <li>Peranti dan sistem operasi yang digunakan</li>
-              <li>Lokasi geografi (berdasarkan alamat IP)</li>
-            </ul>
-
-            <h2>2. Penggunaan Maklumat</h2>
-            <p>
-              Maklumat yang dikumpulkan digunakan untuk:
+              நீங்கள் எங்கள் இணையதளத்தை பார்வையிடும்போது பின்வரும் தகவல்களை சேகரிக்கலாம்:
             </p>
             <ul>
-              <li>Meningkatkan pengalaman pengguna</li>
-              <li>Menganalisis corak trafik laman web</li>
-              <li>Menambah baik kandungan dan perkhidmatan</li>
-              <li>Memastikan keselamatan laman web</li>
+              <li>IP முகவரி மற்றும் உலாவி தகவல்</li>
+              <li>பார்வையிட்ட பக்கங்கள் மற்றும் பார்வை நேரம்</li>
+              <li>பயன்படுத்தப்பட்ட சாதனம் மற்றும் இயக்க முறைமை</li>
+              <li>புவியியல் இருப்பிடம் (IP முகவரியின் அடிப்படையில்)</li>
             </ul>
 
-            <h2>3. Cookies</h2>
+            <h2>2. தகவல் பயன்பாடு</h2>
             <p>
-              Laman web kami menggunakan cookies untuk meningkatkan pengalaman pelayaran anda.
-              Cookies adalah fail kecil yang disimpan pada peranti anda. Anda boleh mengawal
-              atau memadam cookies melalui tetapan pelayar anda.
+              சேகரிக்கப்பட்ட தகவல்கள் பின்வருவனவற்றுக்கு பயன்படுத்தப்படுகின்றன:
+            </p>
+            <ul>
+              <li>பயனர் அனுபவத்தை மேம்படுத்துதல்</li>
+              <li>இணையதள போக்குவரத்து முறைகளை பகுப்பாய்வு செய்தல்</li>
+              <li>உள்ளடக்கம் மற்றும் சேவைகளை மேம்படுத்துதல்</li>
+              <li>இணையதள பாதுகாப்பை உறுதி செய்தல்</li>
+            </ul>
+
+            <h2>3. குக்கீகள்</h2>
+            <p>
+              எங்கள் இணையதளம் உங்கள் உலாவல் அனுபவத்தை மேம்படுத்த குக்கீகளை பயன்படுத்துகிறது.
+              குக்கீகள் உங்கள் சாதனத்தில் சேமிக்கப்படும் சிறிய கோப்புகள். உங்கள் உலாவி 
+              அமைப்புகள் மூலம் குக்கீகளை கட்டுப்படுத்தலாம் அல்லது நீக்கலாம்.
             </p>
 
-            <h2>4. Perkongsian Maklumat</h2>
+            <h2>4. தகவல் பகிர்வு</h2>
             <p>
-              Kami tidak akan menjual, memperdagangkan, atau memindahkan maklumat peribadi
-              anda kepada pihak ketiga tanpa kebenaran anda, kecuali jika dikehendaki oleh
-              undang-undang.
+              சட்டத்தால் தேவைப்பட்டால் தவிர, உங்கள் அனுமதியின்றி உங்கள் தனிப்பட்ட 
+              தகவல்களை மூன்றாம் தரப்பினருக்கு விற்கவோ, வர்த்தகம் செய்யவோ அல்லது 
+              மாற்றவோ மாட்டோம்.
             </p>
 
-            <h2>5. Pautan Luar</h2>
+            <h2>5. வெளி இணைப்புகள்</h2>
             <p>
-              Laman web kami mungkin mengandungi pautan ke laman web luar. Kami tidak
-              bertanggungjawab ke atas kandungan atau amalan privasi laman web tersebut.
+              எங்கள் இணையதளம் வெளி இணையதளங்களுக்கான இணைப்புகளை கொண்டிருக்கலாம். 
+              அந்த இணையதளங்களின் உள்ளடக்கம் அல்லது தனியுரிமை நடைமுறைகளுக்கு நாங்கள் 
+              பொறுப்பல்ல.
             </p>
 
-            <h2>6. Keselamatan Data</h2>
+            <h2>6. தரவு பாதுகாப்பு</h2>
             <p>
-              Kami mengambil langkah-langkah keselamatan yang munasabah untuk melindungi
-              maklumat anda daripada akses yang tidak dibenarkan, pengubahsuaian, atau
-              pendedahan.
+              அங்கீகரிக்கப்படாத அணுகல், மாற்றம் அல்லது வெளிப்படுத்துதலில் இருந்து 
+              உங்கள் தகவல்களை பாதுகாக்க நியாயமான பாதுகாப்பு நடவடிக்கைகளை எடுக்கிறோம்.
             </p>
 
-            <h2>7. Perubahan Polisi</h2>
+            <h2>7. கொள்கை மாற்றங்கள்</h2>
             <p>
-              Kami berhak untuk mengemas kini polisi privasi ini pada bila-bila masa.
-              Sebarang perubahan akan dipaparkan di laman ini dengan tarikh kemas kini baharu.
+              எந்த நேரத்திலும் இந்த தனியுரிமைக் கொள்கையை புதுப்பிக்க எங்களுக்கு 
+              உரிமை உள்ளது. எந்த மாற்றங்களும் புதிய புதுப்பிப்பு தேதியுடன் இந்த 
+              பக்கத்தில் வெளியிடப்படும்.
             </p>
 
-            <h2>8. Hubungi Kami</h2>
+            <h2>8. எங்களை தொடர்பு கொள்ள</h2>
             <p>
-              Jika anda mempunyai sebarang pertanyaan mengenai polisi privasi ini,
-              sila hubungi kami di <strong>privacy@beritamalaysia.com</strong>.
+              இந்த தனியுரிமைக் கொள்கை குறித்து ஏதேனும் கேள்விகள் இருந்தால், 
+              <strong>privacy@seithi-malaysia.com</strong> என்ற முகவரியில் எங்களை தொடர்பு கொள்ளுங்கள்.
             </p>
           </div>
         </div>

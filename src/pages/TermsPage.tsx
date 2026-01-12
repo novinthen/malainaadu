@@ -5,98 +5,98 @@ export default function TermsPage() {
   return (
     <MainLayout>
       <SEOHead
-        title="Terma Penggunaan"
-        description="Terma dan syarat penggunaan Berita Malaysia. Sila baca terma ini dengan teliti sebelum menggunakan laman web kami."
-        canonicalUrl="/terma"
+        title="பயன்பாட்டு விதிமுறைகள்"
+        description="செய்தி மலேசியாவின் பயன்பாட்டு விதிமுறைகள். எங்கள் இணையதளத்தை பயன்படுத்துவதற்கு முன் இந்த விதிமுறைகளை கவனமாக படிக்கவும்."
+        canonicalUrl="/vithimuraigal"
       />
 
       <section className="py-6 md:py-12">
         <div className="container max-w-4xl">
           <h1 className="mb-6 font-display text-3xl font-bold md:text-4xl">
-            Terma Penggunaan
+            பயன்பாட்டு விதிமுறைகள்
           </h1>
 
           <div className="prose prose-lg max-w-none dark:prose-invert">
             <p className="lead text-xl text-muted-foreground">
-              Dengan mengakses dan menggunakan laman web Berita Malaysia, anda bersetuju
-              untuk mematuhi terma dan syarat berikut.
+              செய்தி மலேசியா இணையதளத்தை அணுகி பயன்படுத்துவதன் மூலம், 
+              பின்வரும் விதிமுறைகள் மற்றும் நிபந்தனைகளுக்கு இணங்க ஒப்புக்கொள்கிறீர்கள்.
             </p>
 
             <p>
-              <strong>Tarikh Kemas Kini Terakhir:</strong> 1 Januari 2026
+              <strong>கடைசி புதுப்பிப்பு தேதி:</strong> 1 ஜனவரி 2026
             </p>
 
-            <h2>1. Penerimaan Terma</h2>
+            <h2>1. விதிமுறைகளை ஏற்றுக்கொள்ளுதல்</h2>
             <p>
-              Dengan menggunakan laman web ini, anda mengakui bahawa anda telah membaca,
-              memahami, dan bersetuju untuk terikat dengan terma penggunaan ini. Jika anda
-              tidak bersetuju, sila jangan gunakan laman web ini.
+              இந்த இணையதளத்தை பயன்படுத்துவதன் மூலம், நீங்கள் இந்த பயன்பாட்டு 
+              விதிமுறைகளை படித்து, புரிந்துகொண்டு, அவற்றுக்கு கட்டுப்பட ஒப்புக்கொள்கிறீர்கள். 
+              நீங்கள் ஒப்புக்கொள்ளவில்லை என்றால், இந்த இணையதளத்தை பயன்படுத்தாதீர்கள்.
             </p>
 
-            <h2>2. Penggunaan Laman Web</h2>
+            <h2>2. இணையதள பயன்பாடு</h2>
             <p>
-              Anda bersetuju untuk menggunakan laman web ini hanya untuk tujuan yang sah
-              dan tidak melanggar mana-mana undang-undang yang terpakai. Anda tidak boleh:
+              இந்த இணையதளத்தை சட்டபூர்வமான நோக்கங்களுக்காக மட்டுமே பயன்படுத்த 
+              ஒப்புக்கொள்கிறீர்கள், பொருந்தும் எந்த சட்டத்தையும் மீறாமல். நீங்கள் செய்யக்கூடாது:
             </p>
             <ul>
-              <li>Menggunakan laman web ini untuk sebarang tujuan yang menyalahi undang-undang</li>
-              <li>Menyalin, mengubah suai, atau mengedar kandungan tanpa kebenaran</li>
-              <li>Mengganggu atau merosakkan operasi laman web</li>
-              <li>Menggunakan bot atau kaedah automatik untuk mengakses laman web</li>
+              <li>இந்த இணையதளத்தை சட்டவிரோதமான எந்த நோக்கத்திற்கும் பயன்படுத்துதல்</li>
+              <li>அனுமதியின்றி உள்ளடக்கத்தை நகலெடுத்தல், மாற்றுதல் அல்லது விநியோகித்தல்</li>
+              <li>இணையதளத்தின் செயல்பாட்டை தொந்தரவு செய்தல் அல்லது சேதப்படுத்துதல்</li>
+              <li>இணையதளத்தை அணுக போட்கள் அல்லது தானியங்கி முறைகளை பயன்படுத்துதல்</li>
             </ul>
 
-            <h2>3. Hak Cipta dan Harta Intelek</h2>
+            <h2>3. பதிப்புரிமை மற்றும் அறிவுசார் சொத்து</h2>
             <p>
-              Semua kandungan di laman web ini, termasuk teks, grafik, logo, dan imej,
-              adalah harta Berita Malaysia atau pemilik kandungan asal. Anda tidak dibenarkan
-              menggunakan kandungan ini tanpa kebenaran bertulis.
+              உரை, கிராபிக்ஸ், லோகோக்கள் மற்றும் படங்கள் உட்பட இந்த இணையதளத்தின் 
+              அனைத்து உள்ளடக்கமும் செய்தி மலேசியா அல்லது அசல் உள்ளடக்க உரிமையாளர்களின் 
+              சொத்து ஆகும். எழுத்துப்பூர்வ அனுமதியின்றி இந்த உள்ளடக்கத்தை பயன்படுத்த அனுமதிக்கப்படவில்லை.
             </p>
 
-            <h2>4. Kandungan Pihak Ketiga</h2>
+            <h2>4. மூன்றாம் தரப்பு உள்ளடக்கம்</h2>
             <p>
-              Laman web ini memaparkan berita dari pelbagai sumber luar. Kami tidak
-              bertanggungjawab ke atas ketepatan, kesahihan, atau kualiti kandungan
-              dari sumber-sumber tersebut.
+              இந்த இணையதளம் பல வெளி ஆதாரங்களிலிருந்து செய்திகளை காட்டுகிறது. 
+              அந்த ஆதாரங்களின் உள்ளடக்கத்தின் துல்லியம், நம்பகத்தன்மை அல்லது 
+              தரத்திற்கு நாங்கள் பொறுப்பல்ல.
             </p>
 
-            <h2>5. Pautan ke Laman Web Luar</h2>
+            <h2>5. வெளி இணைப்புகள்</h2>
             <p>
-              Laman web ini mungkin mengandungi pautan ke laman web luar. Kami tidak
-              bertanggungjawab ke atas kandungan atau amalan laman web tersebut.
+              இந்த இணையதளம் வெளி இணையதளங்களுக்கான இணைப்புகளை கொண்டிருக்கலாம். 
+              அந்த இணையதளங்களின் உள்ளடக்கம் அல்லது நடைமுறைகளுக்கு நாங்கள் பொறுப்பல்ல.
             </p>
 
-            <h2>6. Penafian Waranti</h2>
+            <h2>6. உத்தரவாத மறுப்பு</h2>
             <p>
-              Laman web ini disediakan "sebagaimana adanya" tanpa sebarang waranti,
-              sama ada nyata atau tersirat. Kami tidak menjamin bahawa laman web
-              akan bebas daripada ralat atau gangguan.
+              இந்த இணையதளம் வெளிப்படையான அல்லது மறைமுகமான எந்த உத்தரவாதமும் 
+              இன்றி "உள்ளபடியே" வழங்கப்படுகிறது. இணையதளம் பிழை அல்லது 
+              இடையூறு இல்லாமல் இருக்கும் என்று நாங்கள் உத்தரவாதம் அளிக்கவில்லை.
             </p>
 
-            <h2>7. Had Liabiliti</h2>
+            <h2>7. பொறுப்பு வரம்பு</h2>
             <p>
-              Berita Malaysia tidak akan bertanggungjawab ke atas sebarang kerosakan
-              langsung, tidak langsung, sampingan, khas, atau berbangkit yang timbul
-              daripada penggunaan atau ketidakupayaan menggunakan laman web ini.
+              இந்த இணையதளத்தின் பயன்பாடு அல்லது பயன்படுத்த இயலாமையிலிருந்து 
+              எழும் நேரடி, மறைமுக, தற்செயலான, சிறப்பு அல்லது தொடர்ச்சியான 
+              எந்த சேதத்திற்கும் செய்தி மலேசியா பொறுப்பேற்காது.
             </p>
 
-            <h2>8. Perubahan Terma</h2>
+            <h2>8. விதிமுறை மாற்றங்கள்</h2>
             <p>
-              Kami berhak untuk mengubah terma ini pada bila-bila masa. Penggunaan
-              berterusan laman web ini selepas sebarang perubahan bermaksud anda
-              menerima terma yang dikemas kini.
+              எந்த நேரத்திலும் இந்த விதிமுறைகளை மாற்ற எங்களுக்கு உரிமை உள்ளது. 
+              எந்த மாற்றங்களுக்குப் பிறகும் இந்த இணையதளத்தின் தொடர்ச்சியான 
+              பயன்பாடு புதுப்பிக்கப்பட்ட விதிமுறைகளை ஏற்றுக்கொள்வதாகும்.
             </p>
 
-            <h2>9. Undang-undang Berkenaan</h2>
+            <h2>9. பொருந்தும் சட்டம்</h2>
             <p>
-              Terma ini ditadbir dan ditafsirkan mengikut undang-undang Malaysia.
-              Sebarang pertikaian akan tertakluk kepada bidang kuasa eksklusif
-              mahkamah Malaysia.
+              இந்த விதிமுறைகள் மலேசிய சட்டங்களின்படி நிர்வகிக்கப்பட்டு 
+              விளக்கப்படுகின்றன. எந்த சர்ச்சையும் மலேசிய நீதிமன்றங்களின் 
+              பிரத்யேக அதிகார வரம்புக்கு உட்பட்டது.
             </p>
 
-            <h2>10. Hubungi Kami</h2>
+            <h2>10. எங்களை தொடர்பு கொள்ள</h2>
             <p>
-              Untuk sebarang pertanyaan mengenai terma penggunaan ini, sila hubungi
-              kami di <strong>legal@beritamalaysia.com</strong>.
+              இந்த பயன்பாட்டு விதிமுறைகள் குறித்து ஏதேனும் கேள்விகள் இருந்தால், 
+              <strong>legal@seithi-malaysia.com</strong> என்ற முகவரியில் எங்களை தொடர்பு கொள்ளுங்கள்.
             </p>
           </div>
         </div>

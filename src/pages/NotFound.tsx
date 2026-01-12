@@ -8,8 +8,8 @@ const NotFound = () => {
   return (
     <MainLayout>
       <SEOHead
-        title="Halaman Tidak Ditemui"
-        description="Maaf, halaman yang anda cari tidak dapat ditemui."
+        title="பக்கம் கிடைக்கவில்லை"
+        description="மன்னிக்கவும், நீங்கள் தேடும் பக்கம் கிடைக்கவில்லை."
         noIndex
       />
 
@@ -17,23 +17,23 @@ const NotFound = () => {
         <span className="text-7xl">🔍</span>
         <h1 className="mt-6 font-display text-4xl font-bold">404</h1>
         <p className="mt-2 text-xl text-muted-foreground">
-          Halaman Tidak Ditemui
+          பக்கம் கிடைக்கவில்லை
         </p>
         <p className="mt-4 max-w-md text-muted-foreground">
-          Maaf, halaman yang anda cari tidak wujud atau telah dialihkan.
-          Sila kembali ke halaman utama atau gunakan carian.
+          மன்னிக்கவும், நீங்கள் தேடும் பக்கம் இல்லை அல்லது நீக்கப்பட்டுள்ளது.
+          முகப்பு பக்கத்திற்கு திரும்புங்கள் அல்லது தேடலைப் பயன்படுத்துங்கள்.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Button asChild>
             <Link to="/">
               <Home className="mr-2 h-4 w-4" />
-              Halaman Utama
+              முகப்பு பக்கம்
             </Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link to="/cari">
+            <Link to="/thedi">
               <Search className="mr-2 h-4 w-4" />
-              Cari Berita
+              செய்தி தேடு
             </Link>
           </Button>
         </div>

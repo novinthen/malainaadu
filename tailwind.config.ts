@@ -135,8 +135,9 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        display: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
+        sans: ["Noto Sans Tamil", "Inter", "system-ui", "sans-serif"],
+        display: ["Noto Sans Tamil", "Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
+        tamil: ["Noto Sans Tamil", "system-ui", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
