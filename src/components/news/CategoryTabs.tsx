@@ -22,7 +22,7 @@ export function CategoryTabs() {
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground'
             )}
           >
-            Semua
+            அனைத்தும்
           </Link>
           {categories?.map((category) => (
             <Link
