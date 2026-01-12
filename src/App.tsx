@@ -10,6 +10,13 @@ import CategoriesPage from "./pages/CategoriesPage";
 import TrendingPage from "./pages/TrendingPage";
 import LatestPage from "./pages/LatestPage";
 import SearchPage from "./pages/SearchPage";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import ModerationPage from "./pages/admin/ModerationPage";
+import ArticlesPage from "./pages/admin/ArticlesPage";
+import SourcesPage from "./pages/admin/SourcesPage";
+import SettingsPage from "./pages/admin/SettingsPage";
+import { ProtectedRoute } from "./components/admin/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +28,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/berita/:id" element={<ArticlePage />} />
           <Route path="/kategori" element={<CategoriesPage />} />
@@ -28,7 +36,51 @@ const App = () => (
           <Route path="/trending" element={<TrendingPage />} />
           <Route path="/terkini" element={<LatestPage />} />
           <Route path="/cari" element={<SearchPage />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/moderation"
+            element={
+              <ProtectedRoute>
+                <ModerationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/articles"
+            element={
+              <ProtectedRoute>
+                <ArticlesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/sources"
+            element={
+              <ProtectedRoute>
+                <SourcesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
