@@ -114,26 +114,30 @@ async function processWithGemini(
 ): Promise<{ newTitle: string; content: string; excerpt: string; categorySlug: string }> {
   const categoryList = categories.map(c => c.slug).join(', ');
   
-  const prompt = `Anda adalah editor berita profesional Malaysia. Tulis semula artikel berita ini dalam Bahasa Malaysia yang neutral dan profesional.
+  const prompt = `நீங்கள் ஒரு தொழில்முறை மலேசிய தமிழ் செய்தி ஆசிரியர். இந்த செய்தியை மலேசிய தமிழில் மறுபடி எழுதுங்கள்.
 
-TAJUK ASAL: ${title}
+ORIGINAL TITLE: ${title}
 
-KANDUNGAN ASAL: ${description}
+ORIGINAL CONTENT: ${description}
 
-ARAHAN:
-1. Tulis semula tajuk yang lebih menarik dan SEO-friendly dalam Bahasa Malaysia (maksimum 80 aksara)
-2. Tulis semula kandungan dalam 200-300 perkataan dalam Bahasa Malaysia yang neutral, profesional, dan orang ketiga. PENTING: Pisahkan kandungan kepada 3-4 perenggan. Gunakan \\n\\n untuk memisahkan setiap perenggan.
-3. Buat ringkasan/excerpt dalam 1-2 ayat (maksimum 160 aksara)
-4. Pilih kategori yang paling sesuai dari senarai ini: ${categoryList}
+INSTRUCTIONS:
+1. Write an engaging, SEO-friendly title in Malaysian Tamil (maximum 80 characters)
+2. Rewrite the content in 200-300 words in professional, neutral Malaysian Tamil. IMPORTANT: Split content into 3-4 paragraphs using \\n\\n between paragraphs.
+3. Create a brief excerpt/summary in 1-2 sentences (maximum 160 characters) in Tamil
+4. Choose the most appropriate category from this list: ${categoryList}
 
-PENTING: Tulis dalam perspektif orang ketiga yang neutral. Jangan gunakan "kami" atau "saya". Fokus pada fakta.
+IMPORTANT: 
+- Write in third-person neutral perspective. Focus on facts.
+- Use Malaysian Tamil (மலேசிய தமிழ்) - use local Malaysian terms where appropriate
+- Do NOT use Indian Tamil spellings/terms - adapt to Malaysian context
+- Keep proper nouns (names, places) as they are
 
-Balas dalam format JSON sahaja:
+Reply in JSON format only:
 {
-  "title": "Tajuk baharu",
-  "content": "Perenggan pertama...\\n\\nPerenggan kedua...\\n\\nPerenggan ketiga...",
-  "excerpt": "Ringkasan pendek...",
-  "category": "slug_kategori"
+  "title": "தமிழ் தலைப்பு இங்கே",
+  "content": "முதல் பத்தி...\\n\\nஇரண்டாவது பத்தி...\\n\\nமூன்றாவது பத்தி...",
+  "excerpt": "சுருக்கமான தமிழ் சுருக்கம்...",
+  "category": "category_slug"
 }`;
 
   try {
@@ -302,7 +306,7 @@ serve(async (req) => {
             source_id: source.id,
             original_url: item.link,
             category_id: category?.id || null,
-            status: "pending", // Goes to moderation queue
+            status: "published", // Auto-publish for immediate visibility
             publish_date: publishDate,
             view_count: 0,
             is_featured: false,
