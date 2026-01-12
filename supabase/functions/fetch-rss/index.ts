@@ -122,7 +122,7 @@ KANDUNGAN ASAL: ${description}
 
 ARAHAN:
 1. Tulis semula tajuk yang lebih menarik dan SEO-friendly dalam Bahasa Malaysia (maksimum 80 aksara)
-2. Tulis semula kandungan dalam 200-300 perkataan dalam Bahasa Malaysia yang neutral, profesional, dan orang ketiga
+2. Tulis semula kandungan dalam 200-300 perkataan dalam Bahasa Malaysia yang neutral, profesional, dan orang ketiga. PENTING: Pisahkan kandungan kepada 3-4 perenggan. Gunakan \\n\\n untuk memisahkan setiap perenggan.
 3. Buat ringkasan/excerpt dalam 1-2 ayat (maksimum 160 aksara)
 4. Pilih kategori yang paling sesuai dari senarai ini: ${categoryList}
 
@@ -131,7 +131,7 @@ PENTING: Tulis dalam perspektif orang ketiga yang neutral. Jangan gunakan "kami"
 Balas dalam format JSON sahaja:
 {
   "title": "Tajuk baharu",
-  "content": "Kandungan penuh yang ditulis semula...",
+  "content": "Perenggan pertama...\\n\\nPerenggan kedua...\\n\\nPerenggan ketiga...",
   "excerpt": "Ringkasan pendek...",
   "category": "slug_kategori"
 }`;

@@ -172,9 +172,23 @@ export default function ArticlePage() {
 
         {/* Content */}
         <div className="prose prose-lg mt-6 max-w-none dark:prose-invert">
-          {article.content.split('\n').map((paragraph, i) => (
-            <p key={i}>{paragraph}</p>
-          ))}
+          {(() => {
+            // Check if content has newlines
+            if (article.content.includes('\n')) {
+              return article.content
+                .split(/\n+/)
+                .filter((p) => p.trim())
+                .map((paragraph, i) => <p key={i}>{paragraph}</p>);
+            }
+            // No newlines - break into sentence groups (3-4 sentences per paragraph)
+            const sentences = article.content.match(/[^.!?]+[.!?]+/g) || [article.content];
+            const groups: string[] = [];
+            const sentencesPerGroup = 3;
+            for (let i = 0; i < sentences.length; i += sentencesPerGroup) {
+              groups.push(sentences.slice(i, i + sentencesPerGroup).join(' ').trim());
+            }
+            return groups.map((paragraph, i) => <p key={i}>{paragraph}</p>);
+          })()}
         </div>
 
         {/* Source Link */}
