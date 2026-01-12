@@ -15,8 +15,8 @@ export default function LatestPage() {
   return (
     <MainLayout>
       <SEOHead
-        title="Berita Terkini"
-        description="Berita terkini dan terbaru dari semua sumber di Malaysia. Dapatkan berita paling baharu dari pelbagai kategori."
+        title="சமீபத்திய செய்திகள்"
+        description="மலேசியாவின் சமீபத்திய மற்றும் புதிய செய்திகள். பல்வேறு வகைகளிலிருந்து மிகவும் புதிய செய்திகளைப் பெறுங்கள்."
         canonicalUrl={ROUTES.LATEST}
       />
 
@@ -30,10 +30,10 @@ export default function LatestPage() {
             </div>
             <div>
               <h1 className="font-display text-2xl font-bold md:text-3xl">
-                Berita Terkini
+                சமீபத்திய செய்திகள்
               </h1>
               <p className="text-sm text-muted-foreground">
-                Berita terbaru dari semua sumber
+                அனைத்து ஆதாரங்களிலிருந்தும் புதிய செய்திகள்
               </p>
             </div>
           </div>
@@ -41,7 +41,7 @@ export default function LatestPage() {
           <ArticleGrid
             articles={articles}
             isLoading={isLoading}
-            emptyMessage="Tiada berita terkini."
+            emptyMessage="சமீபத்திய செய்திகள் இல்லை."
           />
         </div>
       </section>
