@@ -1,5 +1,7 @@
 import { ArticleCard } from './ArticleCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { cn } from '@/lib/utils';
 import type { Article } from '@/types/database';
 
 interface ArticleGridProps {
@@ -9,6 +11,7 @@ interface ArticleGridProps {
 }
 
 export function ArticleGrid({ articles, isLoading, emptyMessage = 'Tiada berita ditemui.' }: ArticleGridProps) {
+  const { ref, isVisible } = useScrollReveal<HTMLDivElement>(0.05);
   if (isLoading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -34,7 +37,13 @@ export function ArticleGrid({ articles, isLoading, emptyMessage = 'Tiada berita 
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div 
+      ref={ref}
+      className={cn(
+        'grid gap-4 sm:grid-cols-2 lg:grid-cols-3 reveal-stagger',
+        isVisible && 'visible'
+      )}
+    >
       {articles.map((article) => (
         <ArticleCard key={article.id} article={article} />
       ))}

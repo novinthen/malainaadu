@@ -115,13 +115,13 @@ export function ArticleCard({ article, variant = 'default', className }: Article
 
   return (
     <Link to={`/berita/${article.slug}`} className={cn('group block', className)}>
-      <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
+      <Card className="card-premium h-full overflow-hidden">
         <div className="relative aspect-[16/10] overflow-hidden">
           {article.image_url ? (
             <img
               src={article.image_url}
               alt={article.title}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="card-image h-full w-full object-cover transition-transform duration-500"
               loading="lazy"
             />
           ) : (
@@ -148,7 +148,7 @@ export function ArticleCard({ article, variant = 'default', className }: Article
               </Badge>
             )}
           </div>
-          <h3 className="line-clamp-2 font-display text-base font-semibold leading-snug group-hover:text-primary md:text-lg">
+          <h3 className="card-title line-clamp-2 font-display text-base font-semibold leading-snug transition-colors duration-300 md:text-lg">
             {article.title}
           </h3>
           {article.excerpt && (

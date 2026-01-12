@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ms } from 'date-fns/locale';
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArticlePageSkeleton } from '@/components/ui/loading-states';
 import { OptimizedImage } from '@/components/ui/optimized-image';
+import { ReadingProgress } from '@/components/ui/reading-progress';
 import { RelatedArticles } from '@/components/news/RelatedArticles';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { NewsArticleSchema, BreadcrumbSchema } from '@/components/seo/StructuredData';
@@ -16,6 +17,19 @@ import { generateMetaDescription } from '@/lib/seo';
 import { ROUTES, SITE_CONFIG } from '@/constants/routes';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+
+/**
+ * Extract a compelling pull quote from the article content
+ */
+function extractPullQuote(paragraphs: string[]): string | null {
+  // Look for a compelling sentence from paragraphs 2-4
+  for (const p of paragraphs.slice(1, 5)) {
+    const sentences = p.match(/[^.!?]+[.!?]+/g) || [];
+    const quote = sentences.find(s => s.length > 60 && s.length < 180);
+    if (quote) return quote.trim();
+  }
+  return null;
+}
 
 // UUID v4 regex pattern for detecting old-style URLs
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -87,6 +101,12 @@ export default function ArticlePage() {
     return processContentToParagraphs(article.content);
   }, [article?.content]);
 
+  // Extract pull quote for longer articles
+  const pullQuote = useMemo(() => {
+    if (paragraphs.length < 4) return null;
+    return extractPullQuote(paragraphs);
+  }, [paragraphs]);
+
   const handleShare = async () => {
     if (navigator.share && article) {
       try {
@@ -155,6 +175,7 @@ export default function ArticlePage() {
 
   return (
     <MainLayout>
+      <ReadingProgress />
       <SEOHead
         title={article.title}
         description={metaDescription}
@@ -267,7 +288,12 @@ export default function ArticlePage() {
         {/* Content */}
         <div className="prose prose-lg mt-6 max-w-none dark:prose-invert">
           {paragraphs.map((paragraph, i) => (
-            <p key={i}>{paragraph}</p>
+            <React.Fragment key={i}>
+              <p className={i === 0 ? 'drop-cap' : undefined}>{paragraph}</p>
+              {i === 2 && pullQuote && (
+                <aside className="pull-quote not-prose">{pullQuote}</aside>
+              )}
+            </React.Fragment>
           ))}
         </div>
 
