@@ -18,22 +18,16 @@ export type Database = {
         Row: {
           article_id: string
           id: string
-          ip_hash: string | null
-          user_agent: string | null
           viewed_at: string
         }
         Insert: {
           article_id: string
           id?: string
-          ip_hash?: string | null
-          user_agent?: string | null
           viewed_at?: string
         }
         Update: {
           article_id?: string
           id?: string
-          ip_hash?: string | null
-          user_agent?: string | null
           viewed_at?: string
         }
         Relationships: [
