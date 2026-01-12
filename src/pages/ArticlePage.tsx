@@ -37,16 +37,16 @@ function processContentToParagraphs(content: string): string[] {
 }
 
 export default function ArticlePage() {
-  const { id } = useParams<{ id: string }>();
-  const { data: article, isLoading, error } = useArticle(id!);
+  const { slug } = useParams<{ slug: string }>();
+  const { data: article, isLoading, error } = useArticle(slug!);
   const recordView = useRecordView();
 
-  // Record view on mount
+  // Record view on mount - use article.id once loaded
   useEffect(() => {
-    if (id) {
-      recordView.mutate(id);
+    if (article?.id) {
+      recordView.mutate(article.id);
     }
-  }, [id]);
+  }, [article?.id]);
 
   // Memoize paragraph processing
   const paragraphs = useMemo(() => {
@@ -108,7 +108,7 @@ export default function ArticlePage() {
     ? format(new Date(article.publish_date), 'd MMMM yyyy, HH:mm', { locale: ms })
     : null;
 
-  const articleUrl = ROUTES.ARTICLE(article.id);
+  const articleUrl = ROUTES.ARTICLE(article.slug);
   const metaDescription = generateMetaDescription(article.content, article.excerpt);
 
   // Breadcrumb items for structured data

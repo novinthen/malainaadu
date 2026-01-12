@@ -43,7 +43,7 @@ export function TrendingSection() {
             {articles.map((article, index) => (
               <div key={article.id} className="w-[200px] shrink-0 md:w-auto">
                 <Link
-                  to={`/berita/${article.id}`}
+                  to={`/berita/${article.slug}`}
                   className="group relative block overflow-hidden rounded-lg"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">

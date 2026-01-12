@@ -243,7 +243,7 @@ export default function ArticlesPage() {
                               size="icon"
                               asChild
                             >
-                              <a href={`/berita/${article.id}`} target="_blank" rel="noopener noreferrer">
+                              <a href={`/berita/${article.slug}`} target="_blank" rel="noopener noreferrer">
                                 <Eye className="h-4 w-4" />
                               </a>
                             </Button>

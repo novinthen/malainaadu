@@ -21,7 +21,7 @@ export function BreakingNewsTicker() {
             {breakingNews.map((article, index) => (
               <Link
                 key={article.id}
-                to={`/berita/${article.id}`}
+                to={`/berita/${article.slug}`}
                 className="inline-flex items-center gap-4 pr-8 text-sm font-medium hover:underline"
               >
                 <span>{article.title}</span>

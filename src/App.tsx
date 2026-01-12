@@ -63,7 +63,7 @@ const App = () => (
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Index />} />
-              <Route path="/berita/:id" element={<ArticlePage />} />
+              <Route path="/berita/:slug" element={<ArticlePage />} />
               <Route path="/kategori" element={<CategoriesPage />} />
               <Route path="/kategori/:slug" element={<CategoryPage />} />
               <Route path="/trending" element={<TrendingPage />} />
