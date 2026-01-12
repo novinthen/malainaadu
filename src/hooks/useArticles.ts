@@ -54,9 +54,9 @@ export function useArticles(options?: {
   });
 }
 
-export function useArticle(id: string) {
+export function useArticle(slug: string) {
   return useQuery({
-    queryKey: ['article', id],
+    queryKey: ['article', slug],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('articles')
@@ -65,13 +65,13 @@ export function useArticle(id: string) {
           source:sources(*),
           category:categories(*)
         `)
-        .eq('id', id)
+        .eq('slug', slug)
         .single();
 
       if (error) throw error;
       return data as Article;
     },
-    enabled: !!id,
+    enabled: !!slug,
   });
 }
 

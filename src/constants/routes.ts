@@ -1,6 +1,6 @@
 export const ROUTES = {
   HOME: '/',
-  ARTICLE: (id: string) => `/berita/${id}`,
+  ARTICLE: (slug: string) => `/berita/${slug}`,
   CATEGORY: (slug: string) => `/kategori/${slug}`,
   CATEGORIES: '/kategori',
   TRENDING: '/trending',

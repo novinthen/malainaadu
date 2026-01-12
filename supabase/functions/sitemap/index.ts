@@ -21,7 +21,7 @@ serve(async (req) => {
     // Fetch published articles
     const { data: articles, error: articlesError } = await supabase
       .from("articles")
-      .select("id, updated_at, publish_date")
+      .select("id, slug, updated_at, publish_date")
       .eq("status", "published")
       .order("publish_date", { ascending: false })
       .limit(1000);
@@ -112,8 +112,9 @@ serve(async (req) => {
     // Add article pages
     for (const article of articles || []) {
       const lastmod = article.updated_at || article.publish_date || now;
+      const articleSlug = article.slug || article.id;
       xml += `  <url>
-    <loc>${SITE_URL}/berita/${article.id}</loc>
+    <loc>${SITE_URL}/berita/${articleSlug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

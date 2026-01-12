@@ -20,7 +20,7 @@ export function ArticleCard({ article, variant = 'default', className }: Article
 
   if (variant === 'featured') {
     return (
-      <Link to={`/berita/${article.id}`} className={cn('group block', className)}>
+      <Link to={`/berita/${article.slug}`} className={cn('group block', className)}>
         <Card className="overflow-hidden border-0 shadow-lg transition-shadow hover:shadow-xl">
           <div className="relative aspect-[16/9] overflow-hidden md:aspect-[21/9]">
             {article.image_url ? (
@@ -84,7 +84,7 @@ export function ArticleCard({ article, variant = 'default', className }: Article
   if (variant === 'compact') {
     return (
       <Link
-        to={`/berita/${article.id}`}
+        to={`/berita/${article.slug}`}
         className={cn(
           'group flex gap-3 rounded-lg p-2 transition-colors hover:bg-muted',
           className
@@ -114,7 +114,7 @@ export function ArticleCard({ article, variant = 'default', className }: Article
   }
 
   return (
-    <Link to={`/berita/${article.id}`} className={cn('group block', className)}>
+    <Link to={`/berita/${article.slug}`} className={cn('group block', className)}>
       <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
         <div className="relative aspect-[16/10] overflow-hidden">
           {article.image_url ? (

@@ -55,6 +55,7 @@ export type Database = {
           original_url: string | null
           publish_date: string | null
           scheduled_at: string | null
+          slug: string | null
           source_id: string | null
           status: Database["public"]["Enums"]["article_status"]
           title: string
@@ -75,6 +76,7 @@ export type Database = {
           original_url?: string | null
           publish_date?: string | null
           scheduled_at?: string | null
+          slug?: string | null
           source_id?: string | null
           status?: Database["public"]["Enums"]["article_status"]
           title: string
@@ -95,6 +97,7 @@ export type Database = {
           original_url?: string | null
           publish_date?: string | null
           scheduled_at?: string | null
+          slug?: string | null
           source_id?: string | null
           status?: Database["public"]["Enums"]["article_status"]
           title?: string
@@ -259,6 +262,7 @@ export type Database = {
     }
     Functions: {
       cleanup_old_article_views: { Args: never; Returns: number }
+      generate_article_slug: { Args: { title: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
