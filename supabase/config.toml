@@ -1,10 +1,1 @@
-project_id = "mnzzhsaaxdwbklmqvjrb"
-
-[functions.fetch-rss]
-verify_jwt = false
-
-[functions.reprocess-articles]
-verify_jwt = false
-
-[functions.sitemap]
-verify_jwt = false
+project_id = "dwopahjycvaocermgesw"
