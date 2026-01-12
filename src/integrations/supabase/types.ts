@@ -175,6 +175,39 @@ export type Database = {
         }
         Relationships: []
       }
+      fetch_logs: {
+        Row: {
+          articles_processed: number | null
+          articles_skipped: number | null
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          articles_processed?: number | null
+          articles_skipped?: number | null
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          articles_processed?: number | null
+          articles_skipped?: number | null
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       sources: {
         Row: {
           created_at: string
@@ -239,6 +272,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      trigger_rss_fetch: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator"
