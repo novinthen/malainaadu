@@ -17,6 +17,64 @@ export default {
       },
     },
     extend: {
+      typography: {
+        DEFAULT: {
+          css: {
+            '--tw-prose-body': 'hsl(var(--foreground))',
+            '--tw-prose-headings': 'hsl(var(--foreground))',
+            '--tw-prose-lead': 'hsl(var(--muted-foreground))',
+            '--tw-prose-links': 'hsl(var(--primary))',
+            '--tw-prose-bold': 'hsl(var(--foreground))',
+            '--tw-prose-counters': 'hsl(var(--muted-foreground))',
+            '--tw-prose-bullets': 'hsl(var(--muted-foreground))',
+            '--tw-prose-hr': 'hsl(var(--border))',
+            '--tw-prose-quotes': 'hsl(var(--foreground))',
+            '--tw-prose-quote-borders': 'hsl(var(--gold))',
+            '--tw-prose-captions': 'hsl(var(--muted-foreground))',
+            '--tw-prose-pre-bg': 'hsl(var(--muted))',
+            '--tw-prose-th-borders': 'hsl(var(--border))',
+            '--tw-prose-td-borders': 'hsl(var(--border))',
+            '--tw-prose-invert-body': 'hsl(var(--foreground))',
+            '--tw-prose-invert-headings': 'hsl(var(--foreground))',
+            '--tw-prose-invert-links': 'hsl(var(--primary))',
+            '--tw-prose-invert-quote-borders': 'hsl(var(--gold))',
+            maxWidth: 'none',
+            p: {
+              marginTop: '1.25em',
+              marginBottom: '1.25em',
+              lineHeight: '1.8',
+            },
+            a: {
+              color: 'hsl(var(--primary))',
+              textDecoration: 'underline',
+              textUnderlineOffset: '3px',
+              fontWeight: '500',
+              '&:hover': {
+                color: 'hsl(var(--crimson-dark))',
+              },
+            },
+            'h1, h2, h3, h4': {
+              fontFamily: '"Plus Jakarta Sans", Inter, system-ui, sans-serif',
+              fontWeight: '700',
+            },
+            blockquote: {
+              borderLeftColor: 'hsl(var(--gold))',
+              borderLeftWidth: '4px',
+              fontStyle: 'italic',
+              paddingLeft: '1.5em',
+              color: 'hsl(var(--muted-foreground))',
+            },
+            strong: {
+              fontWeight: '600',
+              color: 'hsl(var(--foreground))',
+            },
+            'p:first-of-type': {
+              fontSize: '1.125em',
+              lineHeight: '1.75',
+            },
+          },
+        },
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
