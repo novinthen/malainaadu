@@ -1,14 +1,22 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ArticleCard } from '@/components/news/ArticleCard';
-import { Skeleton } from '@/components/ui/skeleton';
+import { TrendingListSkeleton } from '@/components/ui/loading-states';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { useTrendingArticles } from '@/hooks/useArticles';
 import { TrendingUp } from 'lucide-react';
+import { ROUTES } from '@/constants/routes';
 
 export default function TrendingPage() {
   const { data: articles, isLoading } = useTrendingArticles(20);
 
   return (
     <MainLayout>
+      <SEOHead
+        title="Berita Trending"
+        description="Berita paling popular dan trending di Malaysia. Lihat berita yang paling banyak dibaca oleh pembaca Malaysia."
+        canonicalUrl={ROUTES.TRENDING}
+      />
+
       <section className="py-6 md:py-8">
         <div className="container">
           <div className="mb-6 flex items-center gap-3">
@@ -26,17 +34,7 @@ export default function TrendingPage() {
           </div>
 
           {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(10)].map((_, i) => (
-                <div key={i} className="flex gap-4">
-                  <Skeleton className="h-6 w-6 shrink-0 rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <TrendingListSkeleton count={10} />
           ) : articles?.length ? (
             <div className="space-y-4">
               {articles.map((article, index) => (

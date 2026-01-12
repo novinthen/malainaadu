@@ -6,6 +6,8 @@ import { ArticleCard } from '@/components/news/ArticleCard';
 import { ArticleGrid } from '@/components/news/ArticleGrid';
 import { useArticles } from '@/hooks/useArticles';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SEOHead } from '@/components/seo/SEOHead';
+import { WebsiteSchema, OrganizationSchema } from '@/components/seo/StructuredData';
 
 export default function Index() {
   const { data: featuredArticle, isLoading: featuredLoading } = useArticles({
@@ -24,6 +26,10 @@ export default function Index() {
 
   return (
     <MainLayout>
+      <SEOHead canonicalUrl="/" />
+      <WebsiteSchema />
+      <OrganizationSchema />
+
       <BreakingNewsTicker />
       <CategoryTabs />
 

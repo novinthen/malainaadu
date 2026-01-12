@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ms } from 'date-fns/locale';
@@ -6,20 +6,40 @@ import { ArrowLeft, Clock, Eye, ExternalLink, Share2 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ArticleCard } from '@/components/news/ArticleCard';
-import { useArticle, useArticles, useRecordView } from '@/hooks/useArticles';
+import { ArticlePageSkeleton } from '@/components/ui/loading-states';
+import { OptimizedImage } from '@/components/ui/optimized-image';
+import { RelatedArticles } from '@/components/news/RelatedArticles';
+import { SEOHead } from '@/components/seo/SEOHead';
+import { NewsArticleSchema, BreadcrumbSchema } from '@/components/seo/StructuredData';
+import { useArticle, useRecordView } from '@/hooks/useArticles';
+import { generateMetaDescription } from '@/lib/seo';
+import { ROUTES, SITE_CONFIG } from '@/constants/routes';
 import { toast } from 'sonner';
+
+/**
+ * Process article content into paragraphs
+ */
+function processContentToParagraphs(content: string): string[] {
+  // Check if content has newlines
+  if (content.includes('\n')) {
+    return content
+      .split(/\n+/)
+      .filter((p) => p.trim());
+  }
+  // No newlines - break into sentence groups (3-4 sentences per paragraph)
+  const sentences = content.match(/[^.!?]+[.!?]+/g) || [content];
+  const groups: string[] = [];
+  const sentencesPerGroup = 3;
+  for (let i = 0; i < sentences.length; i += sentencesPerGroup) {
+    groups.push(sentences.slice(i, i + sentencesPerGroup).join(' ').trim());
+  }
+  return groups;
+}
 
 export default function ArticlePage() {
   const { id } = useParams<{ id: string }>();
   const { data: article, isLoading, error } = useArticle(id!);
   const recordView = useRecordView();
-
-  const { data: relatedArticles } = useArticles({
-    status: 'published',
-    limit: 4,
-  });
 
   // Record view on mount
   useEffect(() => {
@@ -27,6 +47,12 @@ export default function ArticlePage() {
       recordView.mutate(id);
     }
   }, [id]);
+
+  // Memoize paragraph processing
+  const paragraphs = useMemo(() => {
+    if (!article?.content) return [];
+    return processContentToParagraphs(article.content);
+  }, [article?.content]);
 
   const handleShare = async () => {
     if (navigator.share && article) {
@@ -47,16 +73,7 @@ export default function ArticlePage() {
   if (isLoading) {
     return (
       <MainLayout>
-        <div className="container max-w-4xl py-6">
-          <Skeleton className="aspect-video w-full rounded-lg" />
-          <Skeleton className="mt-4 h-8 w-3/4" />
-          <Skeleton className="mt-2 h-6 w-1/2" />
-          <div className="mt-6 space-y-3">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-          </div>
-        </div>
+        <ArticlePageSkeleton />
       </MainLayout>
     );
   }
@@ -64,6 +81,11 @@ export default function ArticlePage() {
   if (error || !article) {
     return (
       <MainLayout>
+        <SEOHead
+          title="Berita Tidak Ditemui"
+          description="Maaf, berita yang anda cari tidak dapat ditemui."
+          noIndex
+        />
         <div className="container flex flex-col items-center justify-center py-12 text-center">
           <span className="text-5xl">😔</span>
           <h1 className="mt-4 text-2xl font-bold">Berita Tidak Ditemui</h1>
@@ -86,10 +108,36 @@ export default function ArticlePage() {
     ? format(new Date(article.publish_date), 'd MMMM yyyy, HH:mm', { locale: ms })
     : null;
 
-  const related = relatedArticles?.filter((a) => a.id !== article.id).slice(0, 3) || [];
+  const articleUrl = ROUTES.ARTICLE(article.id);
+  const metaDescription = generateMetaDescription(article.content, article.excerpt);
+
+  // Breadcrumb items for structured data
+  const breadcrumbItems = [
+    { name: 'Utama', url: '/' },
+    ...(article.category
+      ? [{ name: article.category.name, url: ROUTES.CATEGORY(article.category.slug) }]
+      : []),
+    { name: article.title, url: articleUrl },
+  ];
 
   return (
     <MainLayout>
+      <SEOHead
+        title={article.title}
+        description={metaDescription}
+        canonicalUrl={articleUrl}
+        ogImage={article.image_url || undefined}
+        ogType="article"
+        article={{
+          publishedTime: article.publish_date || undefined,
+          modifiedTime: article.updated_at,
+          author: article.source?.name,
+          section: article.category?.name,
+        }}
+      />
+      <NewsArticleSchema article={article} url={`${SITE_CONFIG.url}${articleUrl}`} />
+      <BreadcrumbSchema items={breadcrumbItems} />
+
       {/* Mobile Back Button */}
       <div className="sticky top-14 z-40 border-b bg-card/95 backdrop-blur md:hidden">
         <div className="container flex items-center gap-2 py-2">
@@ -104,20 +152,23 @@ export default function ArticlePage() {
 
       <article className="container max-w-4xl py-4 md:py-8">
         {/* Breadcrumb - Desktop */}
-        <nav className="mb-4 hidden items-center gap-2 text-sm text-muted-foreground md:flex">
+        <nav
+          className="mb-4 hidden items-center gap-2 text-sm text-muted-foreground md:flex"
+          aria-label="Breadcrumb"
+        >
           <Link to="/" className="hover:text-foreground">
             Utama
           </Link>
-          <span>/</span>
+          <span aria-hidden="true">/</span>
           {article.category && (
             <>
               <Link
-                to={`/kategori/${article.category.slug}`}
+                to={ROUTES.CATEGORY(article.category.slug)}
                 className="hover:text-foreground"
               >
                 {article.category.name}
               </Link>
-              <span>/</span>
+              <span aria-hidden="true">/</span>
             </>
           )}
           <span className="truncate text-foreground">{article.title}</span>
@@ -125,11 +176,13 @@ export default function ArticlePage() {
 
         {/* Hero Image */}
         {article.image_url && (
-          <div className="relative -mx-4 aspect-video overflow-hidden md:mx-0 md:rounded-xl">
-            <img
+          <div className="-mx-4 md:mx-0 md:rounded-xl md:overflow-hidden">
+            <OptimizedImage
               src={article.image_url}
               alt={article.title}
-              className="h-full w-full object-cover"
+              priority
+              aspectRatio="16/9"
+              className="w-full"
             />
           </div>
         )}
@@ -140,7 +193,11 @@ export default function ArticlePage() {
             <Badge className="bg-accent text-accent-foreground">Terkini</Badge>
           )}
           {article.category && (
-            <Badge variant="secondary">{article.category.name}</Badge>
+            <Link to={ROUTES.CATEGORY(article.category.slug)}>
+              <Badge variant="secondary" className="hover:bg-secondary/80">
+                {article.category.name}
+              </Badge>
+            </Link>
           )}
           {article.source && (
             <Badge variant="outline">{article.source.name}</Badge>
@@ -155,14 +212,14 @@ export default function ArticlePage() {
         {/* Stats */}
         <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           {publishDate && (
-            <span className="flex items-center gap-1">
+            <time dateTime={article.publish_date || undefined} className="flex items-center gap-1">
               <Clock className="h-4 w-4" />
               {publishDate}
-            </span>
+            </time>
           )}
           <span className="flex items-center gap-1">
             <Eye className="h-4 w-4" />
-            {article.view_count.toLocaleString()} views
+            {article.view_count.toLocaleString()} paparan
           </span>
           <Button variant="ghost" size="sm" onClick={handleShare}>
             <Share2 className="mr-1 h-4 w-4" />
@@ -172,23 +229,9 @@ export default function ArticlePage() {
 
         {/* Content */}
         <div className="prose prose-lg mt-6 max-w-none dark:prose-invert">
-          {(() => {
-            // Check if content has newlines
-            if (article.content.includes('\n')) {
-              return article.content
-                .split(/\n+/)
-                .filter((p) => p.trim())
-                .map((paragraph, i) => <p key={i}>{paragraph}</p>);
-            }
-            // No newlines - break into sentence groups (3-4 sentences per paragraph)
-            const sentences = article.content.match(/[^.!?]+[.!?]+/g) || [article.content];
-            const groups: string[] = [];
-            const sentencesPerGroup = 3;
-            for (let i = 0; i < sentences.length; i += sentencesPerGroup) {
-              groups.push(sentences.slice(i, i + sentencesPerGroup).join(' ').trim());
-            }
-            return groups.map((paragraph, i) => <p key={i}>{paragraph}</p>);
-          })()}
+          {paragraphs.map((paragraph, i) => (
+            <p key={i}>{paragraph}</p>
+          ))}
         </div>
 
         {/* Source Link */}
@@ -208,18 +251,11 @@ export default function ArticlePage() {
         )}
 
         {/* Related Articles */}
-        {related.length > 0 && (
-          <section className="mt-12 border-t pt-8">
-            <h2 className="mb-4 font-display text-lg font-bold md:text-xl">
-              Berita Berkaitan
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((a) => (
-                <ArticleCard key={a.id} article={a} />
-              ))}
-            </div>
-          </section>
-        )}
+        <RelatedArticles
+          currentArticleId={article.id}
+          categoryId={article.category_id}
+          sourceId={article.source_id}
+        />
       </article>
 
       {/* Mobile Sticky CTA */}
