@@ -7,6 +7,30 @@ const corsHeaders = {
 };
 
 const SITE_URL = "https://beritamalaysia.com";
+const SITE_NAME = "Berita Malaysia";
+
+/**
+ * Escape special XML characters
+ */
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+/**
+ * Check if article was published within last 48 hours (for Google News)
+ */
+function isRecentArticle(publishDate: string | null): boolean {
+  if (!publishDate) return false;
+  const articleDate = new Date(publishDate);
+  const now = new Date();
+  const hoursDiff = (now.getTime() - articleDate.getTime()) / (1000 * 60 * 60);
+  return hoursDiff <= 48;
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -18,10 +42,10 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch published articles
+    // Fetch published articles with titles for Google News sitemap
     const { data: articles, error: articlesError } = await supabase
       .from("articles")
-      .select("id, slug, updated_at, publish_date")
+      .select("id, slug, title, updated_at, publish_date")
       .eq("status", "published")
       .order("publish_date", { ascending: false })
       .limit(1000);
@@ -41,7 +65,7 @@ serve(async (req) => {
       throw categoriesError;
     }
 
-    // Build XML sitemap
+    // Build XML sitemap with Google News support
     const now = new Date().toISOString();
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -109,15 +133,32 @@ serve(async (req) => {
 `;
     }
 
-    // Add article pages
+    // Add article pages with Google News tags for recent articles
     for (const article of articles || []) {
       const lastmod = article.updated_at || article.publish_date || now;
       const articleSlug = article.slug || article.id;
+      const isRecent = isRecentArticle(article.publish_date);
+      
       xml += `  <url>
     <loc>${SITE_URL}/berita/${articleSlug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.8</priority>`;
+      
+      // Add Google News tags for recent articles (last 48 hours)
+      if (isRecent && article.title) {
+        xml += `
+    <news:news>
+      <news:publication>
+        <news:name>${escapeXml(SITE_NAME)}</news:name>
+        <news:language>ms</news:language>
+      </news:publication>
+      <news:publication_date>${article.publish_date}</news:publication_date>
+      <news:title>${escapeXml(article.title)}</news:title>
+    </news:news>`;
+      }
+      
+      xml += `
   </url>
 `;
     }
