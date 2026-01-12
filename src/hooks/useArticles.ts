@@ -54,9 +54,12 @@ export function useArticles(options?: {
   });
 }
 
-export function useArticle(slug: string) {
+export function useArticle(slugOrId: string) {
+  // Check if this is a UUID (for backward compatibility with old URLs)
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
+  
   return useQuery({
-    queryKey: ['article', slug],
+    queryKey: ['article', slugOrId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('articles')
@@ -65,13 +68,13 @@ export function useArticle(slug: string) {
           source:sources(*),
           category:categories(*)
         `)
-        .eq('slug', slug)
+        .eq(isUUID ? 'id' : 'slug', slugOrId)
         .single();
 
       if (error) throw error;
       return data as Article;
     },
-    enabled: !!slug,
+    enabled: !!slugOrId,
   });
 }
 

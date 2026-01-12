@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ms } from 'date-fns/locale';
-import { ArrowLeft, Clock, Eye, ExternalLink, Share2 } from 'lucide-react';
+import { ArrowLeft, Clock, Eye, ExternalLink, Share2, BookOpen } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,20 @@ import { useArticle, useRecordView } from '@/hooks/useArticles';
 import { generateMetaDescription } from '@/lib/seo';
 import { ROUTES, SITE_CONFIG } from '@/constants/routes';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+
+// UUID v4 regex pattern for detecting old-style URLs
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Calculate reading time based on word count
+ * Average reading speed: 200 words per minute for Malay/English
+ */
+function calculateReadingTime(content: string): number {
+  const words = content.trim().split(/\s+/).length;
+  const minutes = Math.ceil(words / 200);
+  return Math.max(1, minutes); // Minimum 1 minute
+}
 
 /**
  * Process article content into paragraphs
@@ -38,8 +52,27 @@ function processContentToParagraphs(content: string): string[] {
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { data: article, isLoading, error } = useArticle(slug!);
   const recordView = useRecordView();
+
+  // Redirect old UUID URLs to new slug URLs (301 redirect)
+  useEffect(() => {
+    if (slug && UUID_REGEX.test(slug)) {
+      // Fetch article by ID to get the slug
+      supabase
+        .from('articles')
+        .select('slug')
+        .eq('id', slug)
+        .single()
+        .then(({ data }) => {
+          if (data?.slug) {
+            // Navigate to the new slug URL (replace to mimic 301)
+            navigate(ROUTES.ARTICLE(data.slug), { replace: true });
+          }
+        });
+    }
+  }, [slug, navigate]);
 
   // Record view on mount - use article.id once loaded
   useEffect(() => {
@@ -217,6 +250,10 @@ export default function ArticlePage() {
               {publishDate}
             </time>
           )}
+          <span className="flex items-center gap-1">
+            <BookOpen className="h-4 w-4" />
+            {calculateReadingTime(article.content)} min bacaan
+          </span>
           <span className="flex items-center gap-1">
             <Eye className="h-4 w-4" />
             {article.view_count.toLocaleString()} paparan
