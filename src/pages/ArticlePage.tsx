@@ -1,94 +1,31 @@
-import React, { useEffect, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { formatDistanceToNow, format } from 'date-fns';
-import { ms } from 'date-fns/locale';
-import { ArrowLeft, Clock, Eye, ExternalLink, Share2, BookOpen } from 'lucide-react';
+import { useEffect, useMemo } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArticlePageSkeleton } from '@/components/ui/loading-states';
-import { OptimizedImage } from '@/components/ui/optimized-image';
 import { ReadingProgress } from '@/components/ui/reading-progress';
 import { RelatedArticles } from '@/components/news/RelatedArticles';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { NewsArticleSchema, BreadcrumbSchema } from '@/components/seo/StructuredData';
+import { ArticleHeader, ArticleContent, ArticleBreadcrumb } from '@/components/article';
 import { useArticle, useRecordView } from '@/hooks/useArticles';
+import { useArticleRedirect } from '@/hooks/useArticleRedirect';
 import { generateMetaDescription } from '@/lib/seo';
+import { processContentToParagraphs, extractPullQuote } from '@/lib/article-utils';
 import { ROUTES, SITE_CONFIG } from '@/constants/routes';
+import { UI_TEXT } from '@/constants/ui';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-
-/**
- * Extract a compelling pull quote from the article content
- */
-function extractPullQuote(paragraphs: string[]): string | null {
-  // Look for a compelling sentence from paragraphs 2-4
-  for (const p of paragraphs.slice(1, 5)) {
-    const sentences = p.match(/[^.!?]+[.!?]+/g) || [];
-    const quote = sentences.find(s => s.length > 60 && s.length < 180);
-    if (quote) return quote.trim();
-  }
-  return null;
-}
-
-// UUID v4 regex pattern for detecting old-style URLs
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-/**
- * Calculate reading time based on word count
- * Average reading speed: 200 words per minute for Malay/English
- */
-function calculateReadingTime(content: string): number {
-  const words = content.trim().split(/\s+/).length;
-  const minutes = Math.ceil(words / 200);
-  return Math.max(1, minutes); // Minimum 1 minute
-}
-
-/**
- * Process article content into paragraphs
- */
-function processContentToParagraphs(content: string): string[] {
-  // Check if content has newlines
-  if (content.includes('\n')) {
-    return content
-      .split(/\n+/)
-      .filter((p) => p.trim());
-  }
-  // No newlines - break into sentence groups (3-4 sentences per paragraph)
-  const sentences = content.match(/[^.!?]+[.!?]+/g) || [content];
-  const groups: string[] = [];
-  const sentencesPerGroup = 3;
-  for (let i = 0; i < sentences.length; i += sentencesPerGroup) {
-    groups.push(sentences.slice(i, i + sentencesPerGroup).join(' ').trim());
-  }
-  return groups;
-}
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const { data: article, isLoading, error } = useArticle(slug!);
   const recordView = useRecordView();
 
-  // Redirect old UUID URLs to new slug URLs (301 redirect)
-  useEffect(() => {
-    if (slug && UUID_REGEX.test(slug)) {
-      // Fetch article by ID to get the slug
-      supabase
-        .from('articles')
-        .select('slug')
-        .eq('id', slug)
-        .single()
-        .then(({ data }) => {
-          if (data?.slug) {
-            // Navigate to the new slug URL (replace to mimic 301)
-            navigate(ROUTES.ARTICLE(data.slug), { replace: true });
-          }
-        });
-    }
-  }, [slug, navigate]);
+  // Handle UUID to slug redirect
+  useArticleRedirect(slug);
 
-  // Record view on mount - use article.id once loaded
+  // Record view on mount
   useEffect(() => {
     if (article?.id) {
       recordView.mutate(article.id);
@@ -114,12 +51,12 @@ export default function ArticlePage() {
           title: article.title,
           url: window.location.href,
         });
-      } catch (err) {
+      } catch {
         // User cancelled or error
       }
     } else {
       await navigator.clipboard.writeText(window.location.href);
-      toast.success('Pautan telah disalin!');
+      toast.success(UI_TEXT.linkCopied);
     }
   };
 
@@ -135,38 +72,28 @@ export default function ArticlePage() {
     return (
       <MainLayout>
         <SEOHead
-          title="Berita Tidak Ditemui"
-          description="Maaf, berita yang anda cari tidak dapat ditemui."
+          title={UI_TEXT.articleNotFound}
+          description={UI_TEXT.articleNotFoundDesc}
           noIndex
         />
         <div className="container flex flex-col items-center justify-center py-12 text-center">
           <span className="text-5xl">😔</span>
-          <h1 className="mt-4 text-2xl font-bold">Berita Tidak Ditemui</h1>
-          <p className="mt-2 text-muted-foreground">
-            Maaf, berita yang anda cari tidak dapat ditemui.
-          </p>
+          <h1 className="mt-4 text-2xl font-bold">{UI_TEXT.articleNotFound}</h1>
+          <p className="mt-2 text-muted-foreground">{UI_TEXT.articleNotFoundDesc}</p>
           <Button asChild className="mt-4">
-            <Link to="/">Kembali ke Utama</Link>
+            <Link to="/">{UI_TEXT.back} ke {UI_TEXT.home}</Link>
           </Button>
         </div>
       </MainLayout>
     );
   }
 
-  const timeAgo = article.publish_date
-    ? formatDistanceToNow(new Date(article.publish_date), { addSuffix: true, locale: ms })
-    : null;
-
-  const publishDate = article.publish_date
-    ? format(new Date(article.publish_date), 'd MMMM yyyy, HH:mm', { locale: ms })
-    : null;
-
   const articleUrl = ROUTES.ARTICLE(article.slug);
   const metaDescription = generateMetaDescription(article.content, article.excerpt);
 
   // Breadcrumb items for structured data
   const breadcrumbItems = [
-    { name: 'Utama', url: '/' },
+    { name: UI_TEXT.home, url: '/' },
     ...(article.category
       ? [{ name: article.category.name, url: ROUTES.CATEGORY(article.category.slug) }]
       : []),
@@ -198,104 +125,16 @@ export default function ArticlePage() {
           <Button variant="ghost" size="sm" asChild>
             <Link to="/">
               <ArrowLeft className="mr-1 h-4 w-4" />
-              Kembali
+              {UI_TEXT.back}
             </Link>
           </Button>
         </div>
       </div>
 
       <article className="container max-w-4xl py-4 md:py-8">
-        {/* Breadcrumb - Desktop */}
-        <nav
-          className="mb-4 hidden items-center gap-2 text-sm text-muted-foreground md:flex"
-          aria-label="Breadcrumb"
-        >
-          <Link to="/" className="hover:text-foreground">
-            Utama
-          </Link>
-          <span aria-hidden="true">/</span>
-          {article.category && (
-            <>
-              <Link
-                to={ROUTES.CATEGORY(article.category.slug)}
-                className="hover:text-foreground"
-              >
-                {article.category.name}
-              </Link>
-              <span aria-hidden="true">/</span>
-            </>
-          )}
-          <span className="truncate text-foreground">{article.title}</span>
-        </nav>
-
-        {/* Hero Image */}
-        {article.image_url && (
-          <div className="-mx-4 md:mx-0 md:rounded-xl md:overflow-hidden">
-            <OptimizedImage
-              src={article.image_url}
-              alt={article.title}
-              priority
-              aspectRatio="16/9"
-              className="w-full"
-            />
-          </div>
-        )}
-
-        {/* Meta */}
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          {article.is_breaking && (
-            <Badge className="bg-accent text-accent-foreground">Terkini</Badge>
-          )}
-          {article.category && (
-            <Link to={ROUTES.CATEGORY(article.category.slug)}>
-              <Badge variant="secondary" className="hover:bg-secondary/80">
-                {article.category.name}
-              </Badge>
-            </Link>
-          )}
-          {article.source && (
-            <Badge variant="outline">{article.source.name}</Badge>
-          )}
-        </div>
-
-        {/* Title */}
-        <h1 className="mt-4 font-display text-2xl font-bold leading-tight md:text-4xl">
-          {article.title}
-        </h1>
-
-        {/* Stats */}
-        <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          {publishDate && (
-            <time dateTime={article.publish_date || undefined} className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              {publishDate}
-            </time>
-          )}
-          <span className="flex items-center gap-1">
-            <BookOpen className="h-4 w-4" />
-            {calculateReadingTime(article.content)} min bacaan
-          </span>
-          <span className="flex items-center gap-1">
-            <Eye className="h-4 w-4" />
-            {article.view_count.toLocaleString()} paparan
-          </span>
-          <Button variant="ghost" size="sm" onClick={handleShare}>
-            <Share2 className="mr-1 h-4 w-4" />
-            Kongsi
-          </Button>
-        </div>
-
-        {/* Content */}
-        <div className="prose prose-lg mt-6 max-w-none dark:prose-invert">
-          {paragraphs.map((paragraph, i) => (
-            <React.Fragment key={i}>
-              <p className={i === 0 ? 'drop-cap' : undefined}>{paragraph}</p>
-              {i === 2 && pullQuote && (
-                <aside className="pull-quote not-prose">{pullQuote}</aside>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
+        <ArticleBreadcrumb category={article.category} title={article.title} />
+        <ArticleHeader article={article} onShare={handleShare} />
+        <ArticleContent paragraphs={paragraphs} pullQuote={pullQuote} />
 
         {/* Source Link */}
         {article.original_url && (
@@ -307,13 +146,12 @@ export default function ArticlePage() {
                 rel="noopener noreferrer"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
-                Baca penuh di sumber asal
+                {UI_TEXT.readOriginal}
               </a>
             </Button>
           </div>
         )}
 
-        {/* Related Articles */}
         <RelatedArticles
           currentArticleId={article.id}
           categoryId={article.category_id}
@@ -331,7 +169,7 @@ export default function ArticlePage() {
               rel="noopener noreferrer"
             >
               <ExternalLink className="mr-2 h-4 w-4" />
-              Baca penuh di sumber asal
+              {UI_TEXT.readOriginal}
             </a>
           </Button>
         </div>
