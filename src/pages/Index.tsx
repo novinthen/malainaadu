@@ -1,14 +1,59 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { MainLayout } from '@/components/layout/MainLayout';
+import { BreakingNewsTicker } from '@/components/news/BreakingNewsTicker';
+import { CategoryTabs } from '@/components/news/CategoryTabs';
+import { TrendingSection } from '@/components/news/TrendingSection';
+import { ArticleCard } from '@/components/news/ArticleCard';
+import { ArticleGrid } from '@/components/news/ArticleGrid';
+import { useArticles } from '@/hooks/useArticles';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const Index = () => {
+export default function Index() {
+  const { data: featuredArticle, isLoading: featuredLoading } = useArticles({
+    status: 'published',
+    featured: true,
+    limit: 1,
+  });
+
+  const { data: latestArticles, isLoading: latestLoading } = useArticles({
+    status: 'published',
+    limit: 12,
+  });
+
+  const featured = featuredArticle?.[0];
+  const articles = latestArticles?.filter((a) => a.id !== featured?.id) || [];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
-};
+    <MainLayout>
+      <BreakingNewsTicker />
+      <CategoryTabs />
 
-export default Index;
+      {/* Hero Section */}
+      <section className="py-4 md:py-6">
+        <div className="container">
+          {featuredLoading ? (
+            <Skeleton className="aspect-[16/9] w-full rounded-lg md:aspect-[21/9]" />
+          ) : featured ? (
+            <ArticleCard article={featured} variant="featured" />
+          ) : null}
+        </div>
+      </section>
+
+      {/* Trending Section */}
+      <TrendingSection />
+
+      {/* Latest News */}
+      <section className="py-6 md:py-8">
+        <div className="container">
+          <h2 className="mb-4 font-display text-lg font-bold md:text-xl">
+            Berita Terkini
+          </h2>
+          <ArticleGrid
+            articles={articles}
+            isLoading={latestLoading}
+            emptyMessage="Tiada berita terkini."
+          />
+        </div>
+      </section>
+    </MainLayout>
+  );
+}

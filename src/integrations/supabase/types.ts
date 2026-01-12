@@ -14,16 +14,235 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      article_views: {
+        Row: {
+          article_id: string
+          id: string
+          ip_hash: string | null
+          user_agent: string | null
+          viewed_at: string
+        }
+        Insert: {
+          article_id: string
+          id?: string
+          ip_hash?: string | null
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          article_id?: string
+          id?: string
+          ip_hash?: string | null
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_views_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      articles: {
+        Row: {
+          category_id: string | null
+          content: string
+          created_at: string
+          excerpt: string | null
+          id: string
+          image_url: string | null
+          is_breaking: boolean
+          is_featured: boolean
+          original_content: string | null
+          original_title: string | null
+          original_url: string | null
+          publish_date: string | null
+          scheduled_at: string | null
+          source_id: string | null
+          status: Database["public"]["Enums"]["article_status"]
+          title: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          category_id?: string | null
+          content: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          is_breaking?: boolean
+          is_featured?: boolean
+          original_content?: string | null
+          original_title?: string | null
+          original_url?: string | null
+          publish_date?: string | null
+          scheduled_at?: string | null
+          source_id?: string | null
+          status?: Database["public"]["Enums"]["article_status"]
+          title: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          category_id?: string | null
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          is_breaking?: boolean
+          is_featured?: boolean
+          original_content?: string | null
+          original_title?: string | null
+          original_url?: string | null
+          publish_date?: string | null
+          scheduled_at?: string | null
+          source_id?: string | null
+          status?: Database["public"]["Enums"]["article_status"]
+          title?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      email_alerts: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          new_articles: boolean
+          processing_errors: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          new_articles?: boolean
+          processing_errors?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          new_articles?: boolean
+          processing_errors?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sources: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          logo_url: string | null
+          name: string
+          rss_url: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name: string
+          rss_url: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name?: string
+          rss_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator"
+      article_status: "draft" | "pending" | "published" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +369,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator"],
+      article_status: ["draft", "pending", "published", "rejected"],
+    },
   },
 } as const
