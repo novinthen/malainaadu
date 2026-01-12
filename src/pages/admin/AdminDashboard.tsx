@@ -7,6 +7,9 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
 import { useAdminAnalytics, useTopPerformingArticles } from '@/hooks/useAdminAnalytics';
+import { useRealtimeAnalytics } from '@/hooks/useRealtimeAnalytics';
+import { LiveIndicator } from '@/components/admin/LiveIndicator';
+import { RealtimeActivityFeed } from '@/components/admin/RealtimeActivityFeed';
 import {
   ViewsChart,
   CategoryChart,
@@ -69,13 +72,23 @@ export default function AdminDashboard() {
 
   const { data: analytics, isLoading: analyticsLoading } = useAdminAnalytics(30);
   const { data: topArticles, isLoading: topArticlesLoading } = useTopPerformingArticles(10);
+  
+  // Real-time analytics
+  const realtimeData = useRealtimeAnalytics(analytics?.todayViews || 0);
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="font-display text-2xl font-bold md:text-3xl">Dashboard</h1>
-          <p className="text-muted-foreground">Selamat datang ke Panel Admin Berita Malaysia</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-display text-2xl font-bold md:text-3xl">Dashboard</h1>
+            <p className="text-muted-foreground">Selamat datang ke Panel Admin Berita Malaysia</p>
+          </div>
+          <LiveIndicator 
+            isLive={realtimeData.isLive} 
+            lastUpdate={realtimeData.lastUpdate}
+            className="hidden sm:flex"
+          />
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
@@ -145,8 +158,8 @@ export default function AdminDashboard() {
               </Card>
             </div>
 
-            {/* Two Column Layout */}
-            <div className="grid gap-6 lg:grid-cols-2">
+            {/* Three Column Layout */}
+            <div className="grid gap-6 lg:grid-cols-3">
               {/* Pending Moderation */}
               <Card>
                 <CardHeader>
@@ -222,17 +235,21 @@ export default function AdminDashboard() {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Real-time Activity Feed */}
+              <RealtimeActivityFeed recentViews={realtimeData.recentViews} />
             </div>
           </TabsContent>
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
-            {/* Analytics Stats */}
+            {/* Analytics Stats with Real-time */}
             <AnalyticsStatsCards
               totalViews={analytics?.totalViews}
               todayViews={analytics?.todayViews}
               weeklyGrowth={analytics?.weeklyGrowth}
               isLoading={analyticsLoading}
+              realtimeData={realtimeData}
             />
 
             {/* Views Chart - Full Width */}
