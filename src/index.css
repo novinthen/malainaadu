@@ -240,11 +240,46 @@
     );
   }
 
+  /* Lighter overlay for mobile tiles - photos breathe more */
+  .magazine-tile-overlay-light {
+    @apply absolute inset-0;
+    background: linear-gradient(
+      to top,
+      hsl(0 0% 0% / 0.6) 0%,
+      hsl(0 0% 0% / 0.25) 35%,
+      transparent 60%
+    );
+  }
+
   .magazine-tile-content {
     @apply absolute bottom-0 left-0 right-0 p-4;
   }
 
-  /* Category Badge */
+  /* Title text shadow for readability on lighter overlay */
+  .magazine-tile-title {
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  /* Corner Category Ribbon - tiny, unobtrusive */
+  .corner-ribbon {
+    @apply absolute top-2 left-2 z-10;
+    @apply px-1.5 py-0.5 rounded text-[9px] font-semibold;
+    @apply bg-black/50 text-white/90 backdrop-blur-sm;
+  }
+
+  .corner-ribbon-breaking {
+    @apply absolute top-2 left-2 z-10;
+    @apply inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold;
+    @apply bg-destructive/90 text-white backdrop-blur-sm;
+  }
+
+  .corner-ribbon-featured {
+    @apply absolute top-2 right-2 z-10;
+    @apply p-1 rounded-full;
+    @apply bg-gold/90 text-gold-foreground backdrop-blur-sm;
+  }
+
+  /* Category Badge - for hero and desktop */
   .category-badge {
     @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
     @apply bg-primary/90 text-primary-foreground backdrop-blur-sm;
@@ -254,7 +289,7 @@
     @apply bg-gold text-gold-foreground;
   }
 
-  /* Breaking News Badge */
+  /* Breaking News Badge - for hero */
   .breaking-badge {
     @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold;
     @apply bg-destructive text-destructive-foreground;
