@@ -89,19 +89,64 @@ serve(async (req) => {
   }
 
   try {
+    // Authentication check - require admin authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - Admin access required" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await authClient.auth.getUser(token);
+    
+    if (claimsError || !claimsData?.user) {
+      return new Response(
+        JSON.stringify({ error: "Invalid token" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Verify admin role using service role client
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
+    
+    const { data: roleData, error: roleError } = await serviceClient
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", claimsData.user.id)
+      .in("role", ["admin", "moderator"])
+      .single();
+
+    if (roleError || !roleData) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden - Admin role required" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log(`Reprocess triggered by admin user: ${claimsData.user.id}`);
+
     const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
 
     if (!geminiApiKey) {
       throw new Error("GEMINI_API_KEY is not configured");
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = serviceClient;
 
-    // Get request body for optional filters
+    // Get request body for optional filters with input validation
     const body = await req.json().catch(() => ({}));
-    const limit = body.limit || 50; // Process in batches
+    const requestedLimit = parseInt(body.limit) || 50;
+    // Clamp limit between 1 and 100 to prevent resource exhaustion
+    const limit = Math.min(Math.max(1, requestedLimit), 100);
 
     // Get categories
     const { data: categories, error: catError } = await supabase
