@@ -206,19 +206,6 @@ export function MagazineTile({
             </p>
           )}
           <div className="flex items-center gap-3 text-white/75 text-sm">
-            {article.source && (
-              <>
-                {article.source.logo_url && (
-                  <img
-                    src={article.source.logo_url}
-                    alt={article.source.name}
-                    className="w-5 h-5 rounded-full object-cover border border-white/20"
-                  />
-                )}
-                <span className="font-semibold">{article.source.name}</span>
-                <span className="hidden md:inline">•</span>
-              </>
-            )}
             <span>{formatRelativeTime(article.publish_date || article.created_at)}</span>
             {article.view_count > 0 && (
               <>

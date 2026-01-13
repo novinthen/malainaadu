@@ -27,8 +27,8 @@ export function formatRelativeTime(date: string | Date | null | undefined): stri
   const hours = differenceInHours(now, dateObj);
   const days = differenceInDays(now, dateObj);
   
-  if (minutes < 1) return 'இப்போது';
-  if (minutes < 60) return `${minutes} நிமிடம் முன்`;
+  // Show "இன்று HH:mm" for articles less than an hour old
+  if (minutes < 60) return `இன்று ${format(dateObj, 'HH:mm')}`;
   if (hours < 24) return `${hours} மணி நேரம் முன்`;
   if (days === 1) return 'நேற்று';
   if (days < 7) return `${days} நாள் முன்`;
