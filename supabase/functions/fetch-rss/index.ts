@@ -218,6 +218,51 @@ Reply in JSON format only:
   }
 }
 
+// Send article to Make.com webhook
+async function sendToMakeWebhook(
+  articleData: {
+    article_id: string;
+    title: string;
+    excerpt: string;
+    content: string;
+    image_url: string | null;
+    article_url: string;
+    category: string;
+    source_name: string;
+    published_at: string | null;
+  }
+): Promise<void> {
+  const makeWebhookUrl = Deno.env.get("MAKE_WEBHOOK_URL");
+  
+  if (!makeWebhookUrl) {
+    console.log("MAKE_WEBHOOK_URL not configured, skipping webhook");
+    return;
+  }
+
+  try {
+    console.log(`Sending to Make.com: ${articleData.title.substring(0, 40)}...`);
+    
+    const response = await fetchWithTimeout(
+      makeWebhookUrl,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(articleData),
+      },
+      5000 // 5 second timeout
+    );
+
+    if (!response.ok) {
+      console.error(`Make.com webhook error: ${response.status}`);
+    } else {
+      console.log(`Successfully sent to Make.com: ${articleData.article_id}`);
+    }
+  } catch (error) {
+    // Log but don't throw - webhook failure shouldn't block article processing
+    console.error("Make.com webhook failed:", error instanceof Error ? error.message : error);
+  }
+}
+
 serve(async (req) => {
   const startTime = Date.now();
   console.log("=== fetch-rss function started ===");
@@ -347,23 +392,27 @@ serve(async (req) => {
             }
           }
 
-          // Insert article
-          const { error: insertError } = await supabase.from("articles").insert({
-            title: processed.newTitle,
-            original_title: item.title,
-            content: processed.content,
-            original_content: item.description,
-            excerpt: processed.excerpt,
-            image_url: item.imageUrl,
-            source_id: source.id,
-            original_url: item.link,
-            category_id: category?.id || null,
-            status: "published", // Auto-publish for immediate visibility
-            publish_date: publishDate,
-            view_count: 0,
-            is_featured: false,
-            is_breaking: false,
-          });
+          // Insert article and get the inserted data
+          const { data: insertedArticle, error: insertError } = await supabase
+            .from("articles")
+            .insert({
+              title: processed.newTitle,
+              original_title: item.title,
+              content: processed.content,
+              original_content: item.description,
+              excerpt: processed.excerpt,
+              image_url: item.imageUrl,
+              source_id: source.id,
+              original_url: item.link,
+              category_id: category?.id || null,
+              status: "published",
+              publish_date: publishDate,
+              view_count: 0,
+              is_featured: false,
+              is_breaking: false,
+            })
+            .select("id, slug")
+            .single();
 
           if (insertError) {
             console.error(`Insert error for ${item.title}:`, insertError);
@@ -371,6 +420,22 @@ serve(async (req) => {
           } else {
             totalProcessed++;
             console.log(`Successfully inserted: ${item.title.substring(0, 40)}...`);
+
+            // Send to Make.com webhook
+            if (insertedArticle) {
+              const siteUrl = Deno.env.get("SITE_URL") || "https://beritamalaysia.com";
+              await sendToMakeWebhook({
+                article_id: insertedArticle.id,
+                title: processed.newTitle,
+                excerpt: processed.excerpt,
+                content: processed.content,
+                image_url: item.imageUrl,
+                article_url: `${siteUrl}/article/${insertedArticle.slug}`,
+                category: category?.slug || "nasional",
+                source_name: source.name,
+                published_at: publishDate,
+              });
+            }
           }
 
           // Small delay to avoid rate limiting
