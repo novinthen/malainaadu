@@ -218,7 +218,7 @@ Reply in JSON format only:
   }
 }
 
-// Send article to Make.com webhook
+// Send article to Make.com webhook - returns true if successful
 async function sendToMakeWebhook(
   articleData: {
     article_id: string;
@@ -231,12 +231,12 @@ async function sendToMakeWebhook(
     source_name: string;
     published_at: string | null;
   }
-): Promise<void> {
+): Promise<boolean> {
   const makeWebhookUrl = Deno.env.get("MAKE_WEBHOOK_URL");
   
   if (!makeWebhookUrl) {
     console.log("MAKE_WEBHOOK_URL not configured, skipping webhook");
-    return;
+    return false;
   }
 
   try {
@@ -254,12 +254,15 @@ async function sendToMakeWebhook(
 
     if (!response.ok) {
       console.error(`Make.com webhook error: ${response.status}`);
+      return false;
     } else {
       console.log(`Successfully sent to Make.com: ${articleData.article_id}`);
+      return true;
     }
   } catch (error) {
     // Log but don't throw - webhook failure shouldn't block article processing
     console.error("Make.com webhook failed:", error instanceof Error ? error.message : error);
+    return false;
   }
 }
 
@@ -424,7 +427,7 @@ serve(async (req) => {
             // Send to Make.com webhook
             if (insertedArticle) {
               const siteUrl = Deno.env.get("SITE_URL") || "https://beritamalaysia.com";
-              await sendToMakeWebhook({
+              const webhookSuccess = await sendToMakeWebhook({
                 article_id: insertedArticle.id,
                 title: processed.newTitle,
                 excerpt: processed.excerpt,
@@ -435,6 +438,14 @@ serve(async (req) => {
                 source_name: source.name,
                 published_at: publishDate,
               });
+
+              // Update posted_to_facebook status if webhook succeeded
+              if (webhookSuccess) {
+                await supabase
+                  .from("articles")
+                  .update({ posted_to_facebook: true })
+                  .eq("id", insertedArticle.id);
+              }
             }
           }
 
