@@ -53,6 +53,7 @@ export type Database = {
           original_content: string | null
           original_title: string | null
           original_url: string | null
+          posted_to_facebook: boolean
           publish_date: string | null
           scheduled_at: string | null
           slug: string | null
@@ -74,6 +75,7 @@ export type Database = {
           original_content?: string | null
           original_title?: string | null
           original_url?: string | null
+          posted_to_facebook?: boolean
           publish_date?: string | null
           scheduled_at?: string | null
           slug?: string | null
@@ -95,6 +97,7 @@ export type Database = {
           original_content?: string | null
           original_title?: string | null
           original_url?: string | null
+          posted_to_facebook?: boolean
           publish_date?: string | null
           scheduled_at?: string | null
           slug?: string | null
