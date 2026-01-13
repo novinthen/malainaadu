@@ -26,6 +26,31 @@ interface Category {
   slug: string;
 }
 
+// Helper function to fetch with timeout
+async function fetchWithTimeout(
+  url: string,
+  options: RequestInit = {},
+  timeoutMs: number = 10000
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error(`Request timeout after ${timeoutMs}ms`);
+    }
+    throw error;
+  }
+}
+
 // Parse RSS XML to extract items
 function parseRSS(xml: string): RSSItem[] {
   const items: RSSItem[] = [];
@@ -141,7 +166,8 @@ Reply in JSON format only:
 }`;
 
   try {
-    const response = await fetch(
+    // Use timeout for Gemini API call (15 seconds)
+    const response = await fetchWithTimeout(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
       {
         method: "POST",
@@ -153,7 +179,8 @@ Reply in JSON format only:
             maxOutputTokens: 1024,
           },
         }),
-      }
+      },
+      15000 // 15 second timeout for AI processing
     );
 
     if (!response.ok) {
@@ -192,6 +219,11 @@ Reply in JSON format only:
 }
 
 serve(async (req) => {
+  const startTime = Date.now();
+  console.log("=== fetch-rss function started ===");
+  console.log("Timestamp:", new Date().toISOString());
+  console.log("Request method:", req.method);
+
   // Handle CORS
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -203,8 +235,11 @@ serve(async (req) => {
     const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
 
     if (!geminiApiKey) {
+      console.error("GEMINI_API_KEY is not configured");
       throw new Error("GEMINI_API_KEY is not configured");
     }
+
+    console.log("Environment variables loaded successfully");
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -214,7 +249,13 @@ serve(async (req) => {
       .select("*")
       .eq("is_active", true);
 
-    if (sourcesError) throw sourcesError;
+    if (sourcesError) {
+      console.error("Error fetching sources:", sourcesError);
+      throw sourcesError;
+    }
+
+    console.log(`Found ${sources?.length || 0} active sources`);
+
     if (!sources?.length) {
       return new Response(
         JSON.stringify({ message: "No active sources found", processed: 0 }),
@@ -227,7 +268,12 @@ serve(async (req) => {
       .from("categories")
       .select("*");
 
-    if (catError) throw catError;
+    if (catError) {
+      console.error("Error fetching categories:", catError);
+      throw catError;
+    }
+
+    console.log(`Found ${categories?.length || 0} categories`);
 
     let totalProcessed = 0;
     let totalSkipped = 0;
@@ -238,16 +284,22 @@ serve(async (req) => {
       console.log(`Fetching RSS from: ${source.name} (${source.rss_url})`);
 
       try {
-        // Fetch RSS feed
-        const rssResponse = await fetch(source.rss_url, {
-          headers: {
-            "User-Agent": "BeritaMalaysia/1.0",
-            "Accept": "application/rss+xml, application/xml, text/xml",
+        // Fetch RSS feed with 10 second timeout
+        const rssResponse = await fetchWithTimeout(
+          source.rss_url,
+          {
+            headers: {
+              "User-Agent": "BeritaMalaysia/1.0",
+              "Accept": "application/rss+xml, application/xml, text/xml",
+            },
           },
-        });
+          10000 // 10 second timeout
+        );
 
         if (!rssResponse.ok) {
-          errors.push(`Failed to fetch ${source.name}: ${rssResponse.status}`);
+          const errorMsg = `Failed to fetch ${source.name}: ${rssResponse.status}`;
+          console.error(errorMsg);
+          errors.push(errorMsg);
           continue;
         }
 
@@ -256,8 +308,8 @@ serve(async (req) => {
 
         console.log(`Found ${items.length} items from ${source.name}`);
 
-        // Process each item
-        for (const item of items.slice(0, 10)) { // Limit to 10 items per source per run
+        // Process each item - limit to 5 items per source to prevent timeouts
+        for (const item of items.slice(0, 5)) {
           // Check if article already exists (by original URL)
           const { data: existing } = await supabase
             .from("articles")
@@ -318,22 +370,29 @@ serve(async (req) => {
             errors.push(`Insert failed: ${item.title.substring(0, 30)}...`);
           } else {
             totalProcessed++;
+            console.log(`Successfully inserted: ${item.title.substring(0, 40)}...`);
           }
 
           // Small delay to avoid rate limiting
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 300));
         }
       } catch (sourceError) {
-        console.error(`Error processing source ${source.name}:`, sourceError);
-        errors.push(`Source error ${source.name}: ${sourceError}`);
+        const errorMsg = `Error processing source ${source.name}: ${sourceError instanceof Error ? sourceError.message : sourceError}`;
+        console.error(errorMsg);
+        errors.push(errorMsg);
       }
     }
+
+    const duration = Date.now() - startTime;
+    console.log(`=== fetch-rss completed in ${duration}ms ===`);
+    console.log(`Processed: ${totalProcessed}, Skipped: ${totalSkipped}, Errors: ${errors.length}`);
 
     return new Response(
       JSON.stringify({
         message: "RSS fetch completed",
         processed: totalProcessed,
         skipped: totalSkipped,
+        duration_ms: duration,
         errors: errors.length > 0 ? errors : undefined,
       }),
       {
@@ -341,9 +400,13 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Fetch RSS error:", error);
+    const duration = Date.now() - startTime;
+    console.error(`Fetch RSS error after ${duration}ms:`, error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : "Unknown error",
+        duration_ms: duration
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

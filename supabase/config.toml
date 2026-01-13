@@ -2,4 +2,4 @@ project_id = "dwopahjycvaocermgesw"
 
 [functions.fetch-rss]
 verify_jwt = false
-schedule = "*/30 * * * *"
+schedule = "*/15 * * * *"
