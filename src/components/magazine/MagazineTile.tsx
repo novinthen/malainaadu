@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Article } from '@/types/database';
 import { formatRelativeTime } from '@/lib/date-utils';
-import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Clock } from 'lucide-react';
 
 export type TileVariant = 'hero' | 'large' | 'medium' | 'small' | 'compact';
@@ -56,7 +55,7 @@ export function MagazineTile({
     );
   }
 
-  // Small variant - minimal card
+  // Small variant - minimal card with corner ribbon
   if (variant === 'small') {
     return (
       <Link
@@ -70,14 +69,15 @@ export function MagazineTile({
             className="magazine-tile-image"
             loading={priority ? 'eager' : 'lazy'}
           />
-          <div className="magazine-tile-overlay" />
-          <div className="magazine-tile-content">
-            {article.category && (
-              <span className="category-badge text-[10px] mb-1.5">
-                {article.category.name}
-              </span>
-            )}
-            <h3 className="font-tamil font-bold text-sm leading-snug line-clamp-2 text-white">
+          <div className="magazine-tile-overlay-light" />
+          {/* Corner category ribbon */}
+          {article.category && (
+            <span className="corner-ribbon">
+              {article.category.name}
+            </span>
+          )}
+          <div className="magazine-tile-content p-2.5">
+            <h3 className="font-tamil font-bold text-xs leading-snug line-clamp-3 text-white magazine-tile-title">
               {article.title}
             </h3>
           </div>
@@ -86,7 +86,7 @@ export function MagazineTile({
     );
   }
 
-  // Medium variant - standard card
+  // Medium variant - clean card with corner ribbon
   if (variant === 'medium') {
     return (
       <Link
@@ -100,38 +100,32 @@ export function MagazineTile({
             className="magazine-tile-image"
             loading={priority ? 'eager' : 'lazy'}
           />
-          <div className="magazine-tile-overlay" />
-          <div className="magazine-tile-content">
-            <div className="flex items-center gap-2 mb-2">
-              {article.is_breaking && (
-                <span className="breaking-badge">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-dot" />
-                  அவசர செய்தி
-                </span>
-              )}
-              {article.category && !article.is_breaking && (
-                <span className="category-badge">
-                  {article.category.name}
-                </span>
-              )}
-            </div>
-            <h3 className="font-tamil font-bold text-base leading-snug line-clamp-3 text-white mb-2">
+          <div className="magazine-tile-overlay-light" />
+          {/* Corner badges */}
+          {article.is_breaking ? (
+            <span className="corner-ribbon-breaking">
+              <span className="w-1 h-1 rounded-full bg-white animate-pulse-dot" />
+              அவசர
+            </span>
+          ) : article.category && (
+            <span className="corner-ribbon">
+              {article.category.name}
+            </span>
+          )}
+          <div className="magazine-tile-content p-3">
+            <h3 className="font-tamil font-bold text-sm leading-snug line-clamp-4 text-white magazine-tile-title">
               {article.title}
             </h3>
-            <div className="flex items-center gap-2 text-white/70 text-xs">
-              {article.source && (
-                <span className="font-medium">{article.source.name}</span>
-              )}
-              <span>•</span>
-              <span>{formatRelativeTime(article.publish_date || article.created_at)}</span>
-            </div>
+            <span className="text-white/60 text-[10px] mt-1 block">
+              {formatRelativeTime(article.publish_date || article.created_at)}
+            </span>
           </div>
         </div>
       </Link>
     );
   }
 
-  // Large variant - prominent card
+  // Large variant - prominent card with corner ribbon
   if (variant === 'large') {
     return (
       <Link
@@ -145,51 +139,30 @@ export function MagazineTile({
             className="magazine-tile-image"
             loading={priority ? 'eager' : 'lazy'}
           />
-          <div className="magazine-tile-overlay" />
-          <div className="magazine-tile-content p-5">
-            <div className="flex items-center gap-2 mb-3">
-              {article.is_breaking && (
-                <span className="breaking-badge">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-dot" />
-                  அவசர செய்தி
-                </span>
-              )}
-              {article.category && (
-                <span className="category-badge">
-                  {article.category.name}
-                </span>
-              )}
-              {article.is_featured && !article.is_breaking && (
-                <Badge variant="secondary" className="bg-gold text-gold-foreground text-xs">
-                  <TrendingUp className="w-3 h-3 mr-1" />
-                  Featured
-                </Badge>
-              )}
-            </div>
-            <h2 className="font-tamil font-bold text-xl leading-snug line-clamp-3 text-white mb-3">
+          <div className="magazine-tile-overlay-light" />
+          {/* Corner badges */}
+          {article.is_breaking ? (
+            <span className="corner-ribbon-breaking">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-dot" />
+              அவசர
+            </span>
+          ) : article.category && (
+            <span className="corner-ribbon">
+              {article.category.name}
+            </span>
+          )}
+          {article.is_featured && !article.is_breaking && (
+            <span className="corner-ribbon-featured">
+              <TrendingUp className="w-2.5 h-2.5" />
+            </span>
+          )}
+          <div className="magazine-tile-content p-3 md:p-4">
+            <h2 className="font-tamil font-bold text-base md:text-lg leading-snug line-clamp-4 text-white magazine-tile-title mb-1">
               {article.title}
             </h2>
-            {article.excerpt && (
-              <p className="text-white/80 text-sm line-clamp-2 mb-3 leading-relaxed">
-                {article.excerpt}
-              </p>
-            )}
-            <div className="flex items-center gap-2 text-white/70 text-xs">
-              {article.source && (
-                <>
-                  {article.source.logo_url && (
-                    <img
-                      src={article.source.logo_url}
-                      alt={article.source.name}
-                      className="w-4 h-4 rounded-full object-cover"
-                    />
-                  )}
-                  <span className="font-medium">{article.source.name}</span>
-                  <span>•</span>
-                </>
-              )}
-              <span>{formatRelativeTime(article.publish_date || article.created_at)}</span>
-            </div>
+            <span className="text-white/60 text-[10px]">
+              {formatRelativeTime(article.publish_date || article.created_at)}
+            </span>
           </div>
         </div>
       </Link>
