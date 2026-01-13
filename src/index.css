@@ -1,141 +1,153 @@
 @import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;500;600;700;800&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Berita Malaysia Design System
-   Primary: Deep Crimson Red
-   Accent: Warm Gold
+/* மலை நாடு - Flipboard Magazine Design System
+   Primary: Deep Indigo
+   Accent: Warm Gold (Malaysian heritage)
    All colors in HSL format
 */
 
 @layer base {
   :root {
-    --background: 0 0% 96%;
-    --foreground: 0 0% 9%;
+    --background: 220 20% 97%;
+    --foreground: 222 47% 11%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
 
-    --popover: 0 0% 89%;
-    --popover-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
 
     --primary: 243 75% 58%;
     --primary-foreground: 225 100% 96%;
 
-    --secondary: 0 0% 32%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 0 0% 63%;
-    --muted-foreground: 0 0% 9%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 250 100% 97%;
-    --accent-foreground: 258 89% 66%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 9%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 85% 97%;
 
-    --border: 0 0% 83%;
-    --input: 0 0% 83%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
     --ring: 243 75% 58%;
 
-    --radius: 1.25rem;
+    --radius: 0.75rem;
 
-    /* Custom tokens for Berita Malaysia */
+    /* Magazine tokens */
     --gold: 38 92% 50%;
     --gold-foreground: 0 0% 8%;
+    --gold-muted: 38 60% 70%;
+    --indigo: 243 75% 58%;
+    --indigo-dark: 243 75% 45%;
+    --indigo-light: 243 75% 70%;
+
+    /* Legacy aliases */
     --crimson: 0 72% 41%;
     --crimson-dark: 0 72% 35%;
     --crimson-light: 0 72% 55%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 9%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
     --sidebar-primary: 243 75% 58%;
     --sidebar-primary-foreground: 225 100% 96%;
-    --sidebar-accent: 0 0% 32%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 83%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 220 13% 91%;
     --sidebar-ring: 243 75% 58%;
     --chart-1: 234 89% 73%;
     --chart-2: 255 91% 76%;
     --chart-3: 270 95% 75%;
     --chart-4: 238 83% 66%;
     --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 98%;
+    --sidebar: 0 0% 100%;
     --font-sans: 'Lato', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
     --font-serif: 'EB Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.03);
+    --shadow-xs: 0 1px 3px 0 hsl(0 0% 0% / 0.04);
+    --shadow-sm: 0 2px 4px 0 hsl(0 0% 0% / 0.05);
+    --shadow: 0 4px 6px -1px hsl(0 0% 0% / 0.07), 0 2px 4px -1px hsl(0 0% 0% / 0.04);
+    --shadow-md: 0 6px 12px -2px hsl(0 0% 0% / 0.08), 0 3px 6px -2px hsl(0 0% 0% / 0.04);
+    --shadow-lg: 0 10px 20px -3px hsl(0 0% 0% / 0.1), 0 4px 8px -2px hsl(0 0% 0% / 0.04);
+    --shadow-xl: 0 20px 40px -5px hsl(0 0% 0% / 0.12), 0 8px 16px -4px hsl(0 0% 0% / 0.04);
+    --shadow-2xl: 0 25px 50px -12px hsl(0 0% 0% / 0.25);
     --tracking-normal: 0em;
     --spacing: 0.25rem;
   }
 
   .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 98%;
+    --background: 222 47% 8%;
+    --foreground: 220 20% 97%;
 
-    --card: 0 0% 14%;
-    --card-foreground: 0 0% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 220 20% 97%;
 
-    --popover: 0 0% 25%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 222 47% 14%;
+    --popover-foreground: 220 20% 97%;
 
     --primary: 234 89% 73%;
-    --primary-foreground: 243 47% 20%;
+    --primary-foreground: 243 47% 15%;
 
-    --secondary: 0 0% 45%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 222 47% 16%;
+    --secondary-foreground: 220 20% 97%;
 
-    --muted: 0 0% 45%;
-    --muted-foreground: 0 0% 98%;
+    --muted: 222 47% 16%;
+    --muted-foreground: 220 9% 60%;
 
-    --accent: 261 72% 22%;
-    --accent-foreground: 255 91% 76%;
+    --accent: 38 92% 55%;
+    --accent-foreground: 0 0% 9%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 85% 97%;
 
-    --border: 0 0% 32%;
-    --input: 0 0% 32%;
+    --border: 222 47% 20%;
+    --input: 222 47% 20%;
     --ring: 234 89% 73%;
 
     --gold: 38 92% 55%;
     --gold-foreground: 0 0% 8%;
+    --gold-muted: 38 60% 45%;
+    --indigo: 234 89% 73%;
+    --indigo-dark: 234 89% 60%;
+    --indigo-light: 234 89% 80%;
+
     --crimson: 0 72% 50%;
     --crimson-dark: 0 72% 40%;
     --crimson-light: 0 72% 60%;
 
-    --sidebar-background: 0 0% 10%;
-    --sidebar-foreground: 0 0% 98%;
+    --sidebar-background: 222 47% 10%;
+    --sidebar-foreground: 220 20% 97%;
     --sidebar-primary: 234 89% 73%;
-    --sidebar-primary-foreground: 243 47% 20%;
-    --sidebar-accent: 255 91% 76%;
-    --sidebar-accent-foreground: 261 72% 22%;
-    --sidebar-border: 0 0% 32%;
+    --sidebar-primary-foreground: 243 47% 15%;
+    --sidebar-accent: 222 47% 16%;
+    --sidebar-accent-foreground: 220 20% 97%;
+    --sidebar-border: 222 47% 20%;
     --sidebar-ring: 234 89% 73%;
     --chart-1: 229 93% 81%;
     --chart-2: 252 94% 85%;
     --chart-3: 269 97% 85%;
     --chart-4: 234 89% 73%;
-    --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 14%;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --chart-5: 0 0% 50%;
+    --sidebar: 222 47% 11%;
+    --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.1);
+    --shadow-xs: 0 1px 3px 0 hsl(0 0% 0% / 0.15);
+    --shadow-sm: 0 2px 4px 0 hsl(0 0% 0% / 0.2);
+    --shadow: 0 4px 6px -1px hsl(0 0% 0% / 0.25), 0 2px 4px -1px hsl(0 0% 0% / 0.15);
+    --shadow-md: 0 6px 12px -2px hsl(0 0% 0% / 0.3), 0 3px 6px -2px hsl(0 0% 0% / 0.2);
+    --shadow-lg: 0 10px 20px -3px hsl(0 0% 0% / 0.35), 0 4px 8px -2px hsl(0 0% 0% / 0.2);
+    --shadow-xl: 0 20px 40px -5px hsl(0 0% 0% / 0.4), 0 8px 16px -4px hsl(0 0% 0% / 0.25);
+    --shadow-2xl: 0 25px 50px -12px hsl(0 0% 0% / 0.5);
   }
 }
 
@@ -146,8 +158,9 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Noto Sans Tamil', Inter, system-ui, sans-serif;
+    font-family: 'Noto Sans Tamil', 'Lato', system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* Better line height for Tamil text */
@@ -156,32 +169,118 @@
     line-height: 2;
   }
 
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  /* Hide scrollbar on mobile for magazine feel */
+  @media (max-width: 768px) {
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   }
 
-  ::-webkit-scrollbar-track {
-    @apply bg-muted;
-  }
+  /* Custom scrollbar for desktop */
+  @media (min-width: 769px) {
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
 
-  ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-full;
-  }
+    ::-webkit-scrollbar-track {
+      @apply bg-transparent;
+    }
 
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/50;
+    ::-webkit-scrollbar-thumb {
+      @apply bg-muted-foreground/20 rounded-full;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      @apply bg-muted-foreground/40;
+    }
   }
 }
 
 @layer components {
+  /* Magazine Tile Styles */
+  .magazine-tile {
+    @apply relative overflow-hidden rounded-lg bg-card;
+    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), 
+                box-shadow 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .magazine-tile:active {
+    transform: scale(0.98);
+  }
+
+  @media (hover: hover) {
+    .magazine-tile:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .magazine-tile:hover .magazine-tile-image {
+      transform: scale(1.05);
+    }
+  }
+
+  .magazine-tile-image {
+    @apply w-full h-full object-cover;
+    transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .magazine-tile-overlay {
+    @apply absolute inset-0;
+    background: linear-gradient(
+      to top,
+      hsl(0 0% 0% / 0.85) 0%,
+      hsl(0 0% 0% / 0.5) 40%,
+      hsl(0 0% 0% / 0.1) 70%,
+      transparent 100%
+    );
+  }
+
+  .magazine-tile-content {
+    @apply absolute bottom-0 left-0 right-0 p-4;
+  }
+
+  /* Category Badge */
+  .category-badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
+    @apply bg-primary/90 text-primary-foreground backdrop-blur-sm;
+  }
+
+  .category-badge-gold {
+    @apply bg-gold text-gold-foreground;
+  }
+
+  /* Breaking News Badge */
+  .breaking-badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold;
+    @apply bg-destructive text-destructive-foreground;
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 0 0 hsl(var(--destructive) / 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 8px hsl(var(--destructive) / 0);
+    }
+  }
+
+  /* Gradient backgrounds */
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--crimson-dark)) 100%);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--indigo-dark)) 100%);
   }
 
   .gradient-gold {
     background: linear-gradient(135deg, hsl(var(--gold)) 0%, hsl(38 92% 40%) 100%);
+  }
+
+  .gradient-magazine {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--gold)) 100%);
   }
 
   .text-gradient {
@@ -192,34 +291,34 @@
   /* Drop cap styling for articles */
   .drop-cap::first-letter {
     float: left;
-    font-size: 4rem;
+    font-size: 3.5rem;
     line-height: 0.85;
-    font-weight: 700;
-    font-family: 'Plus Jakarta Sans', serif;
+    font-weight: 800;
+    font-family: 'Noto Sans Tamil', sans-serif;
     color: hsl(var(--primary));
-    margin-right: 0.75rem;
-    margin-top: 0.15rem;
+    margin-right: 0.5rem;
+    margin-top: 0.1rem;
   }
 
   @media (min-width: 768px) {
     .drop-cap::first-letter {
-      font-size: 5rem;
-      margin-right: 1rem;
+      font-size: 4.5rem;
+      margin-right: 0.75rem;
     }
   }
 
   /* Pull quote styling */
   .pull-quote {
-    @apply relative my-8 mx-auto max-w-lg px-8 py-6;
-    @apply text-xl md:text-2xl font-semibold leading-relaxed;
+    @apply relative my-6 mx-auto max-w-lg px-6 py-4;
+    @apply text-lg md:text-xl font-semibold leading-relaxed;
     @apply text-center italic text-foreground/90;
   }
 
   .pull-quote::before,
   .pull-quote::after {
     content: '';
-    @apply absolute left-1/2 -translate-x-1/2 w-16 h-0.5;
-    background: linear-gradient(90deg, transparent, hsl(var(--accent)), transparent);
+    @apply absolute left-1/2 -translate-x-1/2 w-12 h-0.5;
+    background: linear-gradient(90deg, transparent, hsl(var(--gold)), transparent);
   }
 
   .pull-quote::before {
@@ -230,11 +329,77 @@
     @apply bottom-0;
   }
 
+  /* Page flip animation */
+  .page-flip-enter {
+    animation: pageFlipIn 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  .page-flip-exit {
+    animation: pageFlipOut 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  @keyframes pageFlipIn {
+    from {
+      opacity: 0;
+      transform: translateX(100%) rotateY(-15deg);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) rotateY(0);
+    }
+  }
+
+  @keyframes pageFlipOut {
+    from {
+      opacity: 1;
+      transform: translateX(0) rotateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-30%) rotateY(10deg);
+    }
+  }
+
+  /* Slide up reveal animation */
+  .slide-up-enter {
+    animation: slideUpIn 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  @keyframes slideUpIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Stagger children animations */
+  .stagger-children > * {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .stagger-children.animate > * {
+    animation: slideUpIn 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  .stagger-children.animate > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-children.animate > *:nth-child(2) { animation-delay: 60ms; }
+  .stagger-children.animate > *:nth-child(3) { animation-delay: 120ms; }
+  .stagger-children.animate > *:nth-child(4) { animation-delay: 180ms; }
+  .stagger-children.animate > *:nth-child(5) { animation-delay: 240ms; }
+  .stagger-children.animate > *:nth-child(6) { animation-delay: 300ms; }
+  .stagger-children.animate > *:nth-child(7) { animation-delay: 360ms; }
+  .stagger-children.animate > *:nth-child(8) { animation-delay: 420ms; }
+
   /* Scroll reveal animations */
   .reveal {
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
   }
 
   .reveal.visible {
@@ -245,16 +410,14 @@
   .reveal-stagger > * {
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
   }
 
-  /* Base rule: make ALL children visible when parent has .visible class */
   .reveal-stagger.visible > * {
     opacity: 1;
     transform: translateY(0);
   }
 
-  /* Staggered transition delays for first 12 items */
   .reveal-stagger.visible > *:nth-child(1) { transition-delay: 0ms; }
   .reveal-stagger.visible > *:nth-child(2) { transition-delay: 50ms; }
   .reveal-stagger.visible > *:nth-child(3) { transition-delay: 100ms; }
@@ -263,10 +426,6 @@
   .reveal-stagger.visible > *:nth-child(6) { transition-delay: 250ms; }
   .reveal-stagger.visible > *:nth-child(7) { transition-delay: 300ms; }
   .reveal-stagger.visible > *:nth-child(8) { transition-delay: 350ms; }
-  .reveal-stagger.visible > *:nth-child(9) { transition-delay: 400ms; }
-  .reveal-stagger.visible > *:nth-child(10) { transition-delay: 450ms; }
-  .reveal-stagger.visible > *:nth-child(11) { transition-delay: 500ms; }
-  .reveal-stagger.visible > *:nth-child(12) { transition-delay: 550ms; }
 
   /* Card hover effects */
   .card-premium {
@@ -276,27 +435,29 @@
   .card-premium::after {
     content: '';
     @apply absolute bottom-0 left-0 right-0 h-1 rounded-b-lg;
-    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--gold)));
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.3s ease-out;
   }
 
-  .card-premium:hover {
-    @apply shadow-xl;
-    transform: translateY(-4px);
-  }
+  @media (hover: hover) {
+    .card-premium:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
 
-  .card-premium:hover::after {
-    transform: scaleX(1);
-  }
+    .card-premium:hover::after {
+      transform: scaleX(1);
+    }
 
-  .card-premium:hover .card-image {
-    transform: scale(1.05);
-  }
+    .card-premium:hover .card-image {
+      transform: scale(1.03);
+    }
 
-  .card-premium:hover .card-title {
-    @apply text-primary;
+    .card-premium:hover .card-title {
+      @apply text-primary;
+    }
   }
 
   /* Breaking news ticker animation */
@@ -335,12 +496,49 @@
       opacity: 1;
     }
     50% {
-      opacity: 0.5;
+      opacity: 0.4;
     }
   }
 
   .animate-pulse-dot {
     animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+
+  /* Bottom nav hide on scroll */
+  .bottom-nav-visible {
+    transform: translateY(0);
+    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .bottom-nav-hidden {
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  /* Section divider */
+  .section-divider {
+    @apply relative py-8;
+  }
+
+  .section-divider::before {
+    content: '';
+    @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2;
+    @apply w-16 h-0.5 bg-gradient-to-r from-transparent via-border to-transparent;
+  }
+
+  /* Touch feedback */
+  .touch-feedback {
+    @apply relative overflow-hidden;
+  }
+
+  .touch-feedback::after {
+    content: '';
+    @apply absolute inset-0 bg-foreground/5 opacity-0;
+    transition: opacity 0.15s ease-out;
+  }
+
+  .touch-feedback:active::after {
+    opacity: 1;
   }
 }
 

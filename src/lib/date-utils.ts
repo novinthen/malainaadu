@@ -3,7 +3,7 @@
  * Centralized date formatting for consistent display across the app
  */
 
-import { formatDistanceToNow, format } from 'date-fns';
+import { formatDistanceToNow, format, differenceInMinutes, differenceInHours, differenceInDays } from 'date-fns';
 import { ms } from 'date-fns/locale';
 
 /**
@@ -12,6 +12,28 @@ import { ms } from 'date-fns/locale';
 export function formatTimeAgo(date: string | Date | null | undefined): string | null {
   if (!date) return null;
   return formatDistanceToNow(new Date(date), { addSuffix: true, locale: ms });
+}
+
+/**
+ * Format a date as short relative time for Tamil (e.g., "2 மணி நேரம் முன்")
+ */
+export function formatRelativeTime(date: string | Date | null | undefined): string {
+  if (!date) return '';
+  
+  const now = new Date();
+  const dateObj = new Date(date);
+  
+  const minutes = differenceInMinutes(now, dateObj);
+  const hours = differenceInHours(now, dateObj);
+  const days = differenceInDays(now, dateObj);
+  
+  if (minutes < 1) return 'இப்போது';
+  if (minutes < 60) return `${minutes} நிமிடம் முன்`;
+  if (hours < 24) return `${hours} மணி நேரம் முன்`;
+  if (days === 1) return 'நேற்று';
+  if (days < 7) return `${days} நாள் முன்`;
+  
+  return format(dateObj, 'd MMM', { locale: ms });
 }
 
 /**
