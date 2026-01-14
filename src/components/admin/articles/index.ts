@@ -7,3 +7,4 @@ export { ArticleFilters } from './ArticleFilters';
 export { ArticlesTable } from './ArticlesTable';
 export { ArticleEditDialog } from './ArticleEditDialog';
 export { ArticleDeleteDialog } from './ArticleDeleteDialog';
+export { BulkActionsBar } from './BulkActionsBar';

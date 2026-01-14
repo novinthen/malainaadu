@@ -1,14 +1,25 @@
 /**
  * ArticlesTable Component
- * Table view for admin articles list with enhanced information
+ * Table view for admin articles list with enhanced information,
+ * checkbox selection, and pagination
  */
 
-import { Eye, Edit, Trash2, Star, Zap, ExternalLink, Facebook, Check } from 'lucide-react';
+import { Eye, Edit, Trash2, Star, Zap, ExternalLink, Check } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { STATUS_COLORS, STATUS_LABELS, UI_TEXT } from '@/constants/ui';
 import { formatRelativeTime, formatPublishDate } from '@/lib/date-utils';
 import type { Article } from '@/types/database';
@@ -18,11 +29,68 @@ interface ArticlesTableProps {
   isLoading: boolean;
   onEdit: (article: Article) => void;
   onDelete: (article: Article) => void;
+  selectedIds: string[];
+  onSelectionChange: (ids: string[]) => void;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
-export function ArticlesTable({ articles, isLoading, onEdit, onDelete }: ArticlesTableProps) {
+export function ArticlesTable({
+  articles,
+  isLoading,
+  onEdit,
+  onDelete,
+  selectedIds,
+  onSelectionChange,
+  currentPage,
+  totalPages,
+  onPageChange,
+}: ArticlesTableProps) {
   const getDisplayDate = (article: Article) => {
     return article.publish_date || article.created_at;
+  };
+
+  const allSelected = articles?.length ? articles.every((a) => selectedIds.includes(a.id)) : false;
+  const someSelected = articles?.some((a) => selectedIds.includes(a.id)) && !allSelected;
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked && articles) {
+      onSelectionChange([...new Set([...selectedIds, ...articles.map((a) => a.id)])]);
+    } else if (articles) {
+      const articleIds = articles.map((a) => a.id);
+      onSelectionChange(selectedIds.filter((id) => !articleIds.includes(id)));
+    }
+  };
+
+  const handleSelectOne = (articleId: string, checked: boolean) => {
+    if (checked) {
+      onSelectionChange([...selectedIds, articleId]);
+    } else {
+      onSelectionChange(selectedIds.filter((id) => id !== articleId));
+    }
+  };
+
+  const generatePageNumbers = () => {
+    const pages: (number | 'ellipsis')[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (currentPage > 3) pages.push('ellipsis');
+      
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = start; i <= end; i++) pages.push(i);
+      
+      if (currentPage < totalPages - 2) pages.push('ellipsis');
+      pages.push(totalPages);
+    }
+
+    return pages;
   };
 
   return (
@@ -32,6 +100,19 @@ export function ArticlesTable({ articles, isLoading, onEdit, onDelete }: Article
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={handleSelectAll}
+                    aria-label={UI_TEXT.selectAll}
+                    className={someSelected ? 'data-[state=checked]:bg-primary' : ''}
+                    ref={(el) => {
+                      if (el) {
+                        (el as HTMLButtonElement).dataset.state = someSelected ? 'indeterminate' : allSelected ? 'checked' : 'unchecked';
+                      }
+                    }}
+                  />
+                </TableHead>
                 <TableHead className="min-w-[280px]">Tajuk</TableHead>
                 <TableHead>Sumber</TableHead>
                 <TableHead>Kategori</TableHead>
@@ -46,13 +127,23 @@ export function ArticlesTable({ articles, isLoading, onEdit, onDelete }: Article
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8">
+                  <TableCell colSpan={10} className="text-center py-8">
                     {UI_TEXT.loading}
                   </TableCell>
                 </TableRow>
               ) : articles?.length ? (
                 articles.map((article) => (
-                  <TableRow key={article.id}>
+                  <TableRow 
+                    key={article.id}
+                    className={selectedIds.includes(article.id) ? 'bg-muted/50' : ''}
+                  >
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedIds.includes(article.id)}
+                        onCheckedChange={(checked) => handleSelectOne(article.id, checked as boolean)}
+                        aria-label={`Select ${article.title}`}
+                      />
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-start gap-2">
                         <div className="flex gap-1 shrink-0">
@@ -163,7 +254,7 @@ export function ArticlesTable({ articles, isLoading, onEdit, onDelete }: Article
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                     {UI_TEXT.noArticles}
                   </TableCell>
                 </TableRow>
@@ -171,6 +262,47 @@ export function ArticlesTable({ articles, isLoading, onEdit, onDelete }: Article
             </TableBody>
           </Table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="border-t p-4">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+
+                {generatePageNumbers().map((page, index) =>
+                  page === 'ellipsis' ? (
+                    <PaginationItem key={`ellipsis-${index}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={() => onPageChange(page)}
+                        isActive={currentPage === page}
+                        className="cursor-pointer"
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                )}
+
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
