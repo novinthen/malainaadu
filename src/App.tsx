@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ArticlePageSkeleton } from "@/components/ui/loading-states";
 
@@ -52,6 +52,12 @@ function AdminLoadingFallback() {
   );
 }
 
+// Redirect from old /article/ paths to /berita/
+function ArticleRedirect() {
+  const { slug } = useParams();
+  return <Navigate to={`/berita/${slug}`} replace />;
+}
+
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
@@ -72,6 +78,9 @@ const App = () => (
               <Route path="/tentang" element={<AboutPage />} />
               <Route path="/privasi" element={<PrivacyPage />} />
               <Route path="/terma" element={<TermsPage />} />
+              
+              {/* Legacy redirect: /article/:slug -> /berita/:slug */}
+              <Route path="/article/:slug" element={<ArticleRedirect />} />
 
               {/* Admin Routes - Lazy loaded */}
               <Route
