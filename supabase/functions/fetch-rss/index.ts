@@ -279,7 +279,11 @@ serve(async (req) => {
 
   // Authentication check - allow cron (no auth header) OR authenticated admin users
   const authHeader = req.headers.get("Authorization");
-  const isCronTrigger = !authHeader && req.headers.get("x-client-info")?.includes("supabase-js"); // Cron triggers don't have auth
+  // Cron triggers have no Authorization header - trust them since verify_jwt is false in config.toml
+  const isCronTrigger = !authHeader;
+  
+  console.log("Has auth header:", !!authHeader);
+  console.log("Is cron trigger:", isCronTrigger);
   
   if (!isCronTrigger) {
     // Manual trigger - require admin authentication
@@ -463,7 +467,7 @@ serve(async (req) => {
               status: "published",
               publish_date: publishDate,
               view_count: 0,
-              is_featured: false,
+              // is_featured is handled by database trigger auto_feature_latest_article
               is_breaking: false,
             })
             .select("id, slug")
