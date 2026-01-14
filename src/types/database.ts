@@ -37,6 +37,7 @@ export interface Article {
   is_featured: boolean;
   is_breaking: boolean;
   posted_to_facebook: boolean;
+  previous_slugs: string[];
   created_at: string;
   updated_at: string;
   // Joined fields

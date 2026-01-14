@@ -54,6 +54,7 @@ export type Database = {
           original_title: string | null
           original_url: string | null
           posted_to_facebook: boolean
+          previous_slugs: string[] | null
           publish_date: string | null
           scheduled_at: string | null
           slug: string | null
@@ -76,6 +77,7 @@ export type Database = {
           original_title?: string | null
           original_url?: string | null
           posted_to_facebook?: boolean
+          previous_slugs?: string[] | null
           publish_date?: string | null
           scheduled_at?: string | null
           slug?: string | null
@@ -98,6 +100,7 @@ export type Database = {
           original_title?: string | null
           original_url?: string | null
           posted_to_facebook?: boolean
+          previous_slugs?: string[] | null
           publish_date?: string | null
           scheduled_at?: string | null
           slug?: string | null

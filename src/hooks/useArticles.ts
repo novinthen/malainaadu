@@ -84,14 +84,31 @@ export function useArticle(slugOrId: string) {
   return useQuery({
     queryKey: articleKeys.detail(slugOrId),
     queryFn: async () => {
+      // First try to find by current slug or ID
       const { data, error } = await supabase
         .from('articles')
         .select(ARTICLE_SELECT)
         .eq(isUUID ? 'id' : 'slug', slugOrId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data as Article;
+      
+      // If found, return it
+      if (data) return data as Article;
+      
+      // If not found by slug, check previous_slugs for redirects
+      if (!isUUID) {
+        const { data: redirectData, error: redirectError } = await supabase
+          .from('articles')
+          .select(ARTICLE_SELECT)
+          .contains('previous_slugs', [slugOrId])
+          .maybeSingle();
+        
+        if (redirectError) throw redirectError;
+        if (redirectData) return redirectData as Article;
+      }
+      
+      return null;
     },
     enabled: !!slugOrId,
   });

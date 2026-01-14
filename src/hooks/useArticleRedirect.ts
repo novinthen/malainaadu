@@ -1,6 +1,8 @@
 /**
  * useArticleRedirect Hook
- * Handles redirecting old UUID-based URLs to new slug-based URLs
+ * Handles redirecting old URLs to new slug-based URLs:
+ * - UUID-based URLs -> current slug
+ * - Old slugs (from previous_slugs) -> current slug
  */
 
 import { useEffect } from 'react';
@@ -13,19 +15,47 @@ export function useArticleRedirect(slug: string | undefined) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (slug && isUUID(slug)) {
-      // Fetch article by ID to get the slug
-      supabase
+    if (!slug) return;
+
+    const checkAndRedirect = async () => {
+      // Case 1: UUID-based URL - redirect to slug
+      if (isUUID(slug)) {
+        const { data } = await supabase
+          .from('articles')
+          .select('slug')
+          .eq('id', slug)
+          .single();
+
+        if (data?.slug) {
+          navigate(ROUTES.ARTICLE(data.slug), { replace: true });
+        }
+        return;
+      }
+
+      // Case 2: Check if this is an old slug that needs redirect
+      // First check if current slug exists
+      const { data: currentArticle } = await supabase
         .from('articles')
         .select('slug')
-        .eq('id', slug)
-        .single()
-        .then(({ data }) => {
-          if (data?.slug) {
-            // Navigate to the new slug URL (replace to mimic 301)
-            navigate(ROUTES.ARTICLE(data.slug), { replace: true });
-          }
-        });
-    }
+        .eq('slug', slug)
+        .maybeSingle();
+
+      // If article found with current slug, no redirect needed
+      if (currentArticle) return;
+
+      // Check if slug exists in previous_slugs
+      const { data: redirectArticle } = await supabase
+        .from('articles')
+        .select('slug')
+        .contains('previous_slugs', [slug])
+        .maybeSingle();
+
+      if (redirectArticle?.slug && redirectArticle.slug !== slug) {
+        // Redirect to the new slug (replace to mimic 301 behavior)
+        navigate(ROUTES.ARTICLE(redirectArticle.slug), { replace: true });
+      }
+    };
+
+    checkAndRedirect();
   }, [slug, navigate]);
 }
