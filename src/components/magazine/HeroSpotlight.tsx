@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Star, Eye, Clock } from 'lucide-react';
+import { ROUTES } from '@/constants/routes';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatRelativeTime } from '@/lib/date-utils';
@@ -25,7 +26,7 @@ export function HeroSpotlight({ article, isLoading }: HeroSpotlightProps) {
   return (
     <section className="px-4 py-4 md:py-6">
       <Link 
-        to={`/article/${article.slug || article.id}`}
+        to={ROUTES.ARTICLE(article.slug || article.id)}
         className="block group"
       >
         <div className="relative overflow-hidden rounded-2xl gold-spotlight-border">
