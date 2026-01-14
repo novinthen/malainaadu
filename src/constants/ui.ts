@@ -77,6 +77,19 @@ export const UI_TEXT = {
   signInFailed: 'Google மூலம் உள்நுழைய முடியவில்லை',
   signOutFailed: 'வெளியேற முடியவில்லை',
   signOutSuccess: 'வெற்றிகரமாக வெளியேறினீர்கள்',
+
+  // Bulk actions
+  selectAll: 'அனைத்தையும் தேர்',
+  selected: 'தேர்ந்தெடுக்கப்பட்டது',
+  bulkPublish: 'வெளியிடு',
+  bulkFeature: 'சிறப்பு',
+  bulkUnfeature: 'சிறப்பு நீக்கு',
+  bulkDeleteConfirmTitle: 'செய்திகளை நீக்க விரும்புகிறீர்களா?',
+  bulkDeleteConfirmDesc: '{count} செய்திகளை நிரந்தரமாக நீக்க விரும்புகிறீர்களா? இந்தச் செயலை மீட்க முடியாது.',
+  bulkPublishSuccess: '{count} செய்திகள் வெளியிடப்பட்டன!',
+  bulkDeleteSuccess: '{count} செய்திகள் நீக்கப்பட்டன!',
+  bulkFeatureSuccess: '{count} செய்திகள் சிறப்பாக்கப்பட்டன!',
+  bulkUnfeatureSuccess: '{count} செய்திகளில் சிறப்பு நீக்கப்பட்டது!',
 } as const;
 
 // Default limits
