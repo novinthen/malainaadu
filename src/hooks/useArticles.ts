@@ -18,6 +18,7 @@ export const articleKeys = {
   detail: (slugOrId: string) => [...articleKeys.details(), slugOrId] as const,
   trending: (limit: number) => [...articleKeys.all, 'trending', limit] as const,
   breaking: () => [...articleKeys.all, 'breaking'] as const,
+  featured: () => [...articleKeys.all, 'featured'] as const,
 };
 
 export interface ArticleFilters {
@@ -144,6 +145,28 @@ export function useRecordView() {
     onSuccess: (_, articleId) => {
       queryClient.invalidateQueries({ queryKey: articleKeys.detail(articleId) });
       queryClient.invalidateQueries({ queryKey: articleKeys.trending(5) });
+    },
+  });
+}
+
+/**
+ * Fetch the single featured article (auto-featured latest published)
+ */
+export function useFeaturedArticle() {
+  return useQuery({
+    queryKey: articleKeys.featured(),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('articles')
+        .select(ARTICLE_SELECT)
+        .eq('status', 'published')
+        .eq('is_featured', true)
+        .order('publish_date', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data as Article | null;
     },
   });
 }

@@ -1,13 +1,16 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { BreakingNewsTicker } from '@/components/news/BreakingNewsTicker';
-import { HeroCarousel, MagazineGrid, TrendingBar, CategorySection } from '@/components/magazine';
-import { useArticles, useTrendingArticles } from '@/hooks/useArticles';
+import { HeroCarousel, MagazineGrid, TrendingBar, CategorySection, HeroSpotlight } from '@/components/magazine';
+import { useArticles, useTrendingArticles, useFeaturedArticle } from '@/hooks/useArticles';
 import { useCategories } from '@/hooks/useCategories';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { WebsiteSchema, OrganizationSchema } from '@/components/seo/StructuredData';
 
 export default function Index() {
-  // Featured articles for hero carousel
+  // Single featured article for spotlight
+  const { data: spotlightArticle, isLoading: spotlightLoading } = useFeaturedArticle();
+
+  // Featured articles for hero carousel (excluding the spotlight article)
   const { data: featuredArticles, isLoading: featuredLoading } = useArticles({
     status: 'published',
     featured: true,
@@ -55,10 +58,16 @@ export default function Index() {
       {/* Breaking News Ticker */}
       <BreakingNewsTicker />
 
-      {/* Hero Carousel - Featured Articles */}
-      <section className="pt-4 pb-2">
+      {/* Hero Spotlight - Featured Article */}
+      <HeroSpotlight 
+        article={spotlightArticle} 
+        isLoading={spotlightLoading} 
+      />
+
+      {/* Hero Carousel - Other Featured Articles */}
+      <section className="pb-2">
         <HeroCarousel
-          articles={featuredArticles || []}
+          articles={featuredArticles?.filter(a => a.id !== spotlightArticle?.id) || []}
           isLoading={featuredLoading}
         />
       </section>
