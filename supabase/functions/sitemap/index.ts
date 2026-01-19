@@ -6,19 +6,21 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SITE_URL = "https://beritamalaysia.com";
-const SITE_NAME = "Berita Malaysia";
+const SITE_URL = "https://malainaadu.com";
+const SITE_NAME = "மலேசியா செய்தி "; // or 'MalaiNaadu'
+const NEWS_LANGUAGE = "ta";
+const NEWS_LOCALE = "ta_MY";
 
 /**
  * Escape special XML characters
  */
 function escapeXml(str: string): string {
   return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 /**
@@ -56,9 +58,7 @@ serve(async (req) => {
     }
 
     // Fetch categories
-    const { data: categories, error: categoriesError } = await supabase
-      .from("categories")
-      .select("slug, created_at");
+    const { data: categories, error: categoriesError } = await supabase.from("categories").select("slug, created_at");
 
     if (categoriesError) {
       console.error("Error fetching categories:", categoriesError);
@@ -138,13 +138,13 @@ serve(async (req) => {
       const lastmod = article.updated_at || article.publish_date || now;
       const articleSlug = article.slug || article.id;
       const isRecent = isRecentArticle(article.publish_date);
-      
+
       xml += `  <url>
     <loc>${SITE_URL}/berita/${articleSlug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>`;
-      
+
       // Add Google News tags for recent articles (last 48 hours)
       if (isRecent && article.title) {
         xml += `
@@ -157,7 +157,7 @@ serve(async (req) => {
       <news:title>${escapeXml(article.title)}</news:title>
     </news:news>`;
       }
-      
+
       xml += `
   </url>
 `;
@@ -175,12 +175,9 @@ serve(async (req) => {
   } catch (error) {
     console.error("Sitemap generation error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(
-      JSON.stringify({ error: message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
