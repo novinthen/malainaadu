@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_logs: {
+        Row: {
+          alert_type: string
+          created_at: string
+          id: string
+          message: string
+          recipients: string[]
+          sent_at: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          id?: string
+          message: string
+          recipients?: string[]
+          sent_at?: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          id?: string
+          message?: string
+          recipients?: string[]
+          sent_at?: string
+        }
+        Relationships: []
+      }
       article_views: {
         Row: {
           article_id: string
@@ -150,27 +177,33 @@ export type Database = {
       }
       email_alerts: {
         Row: {
+          alert_cooldown_minutes: number
           created_at: string
           email: string
           id: string
+          last_alert_sent: string | null
           new_articles: boolean
           processing_errors: boolean
           updated_at: string
           user_id: string
         }
         Insert: {
+          alert_cooldown_minutes?: number
           created_at?: string
           email: string
           id?: string
+          last_alert_sent?: string | null
           new_articles?: boolean
           processing_errors?: boolean
           updated_at?: string
           user_id: string
         }
         Update: {
+          alert_cooldown_minutes?: number
           created_at?: string
           email?: string
           id?: string
+          last_alert_sent?: string | null
           new_articles?: boolean
           processing_errors?: boolean
           updated_at?: string

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, Rss, RefreshCw, Power, PowerOff, CheckCircle2, AlertTriangle, Clock, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, Rss, RefreshCw, Power, PowerOff, CheckCircle2, AlertTriangle, Clock, FileText, Bell, Mail } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,15 +13,20 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useFetchHealth } from '@/hooks/useFetchHealth';
+import { useEmailAlerts } from '@/hooks/useEmailAlerts';
+import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { ms } from 'date-fns/locale';
 import type { Source } from '@/types/database';
 
 export default function SourcesPage() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editSource, setEditSource] = useState<Source | null>(null);
   const [deleteSource, setDeleteSource] = useState<Source | null>(null);
+  const [alertDialogOpen, setAlertDialogOpen] = useState(false);
+  const [alertEmail, setAlertEmail] = useState('');
 
   // Form state
   const [formName, setFormName] = useState('');
@@ -31,6 +36,9 @@ export default function SourcesPage() {
 
   // Fetch health monitoring
   const { data: fetchHealth } = useFetchHealth();
+
+  // Email alerts
+  const { emailAlert, alertLogs, subscribe, updateSettings, unsubscribe } = useEmailAlerts();
 
   const { data: sources, isLoading } = useQuery({
     queryKey: ['admin-sources'],
@@ -333,6 +341,151 @@ export default function SourcesPage() {
                           {log.error_message}
                         </span>
                       )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Email Alert Subscription */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Bell className="h-5 w-5" />
+                  Amaran E-mel
+                </CardTitle>
+                <CardDescription>Terima amaran apabila sistem menghadapi masalah</CardDescription>
+              </div>
+              {emailAlert ? (
+                <Badge variant="default" className="bg-green-600">
+                  <Mail className="mr-1 h-3 w-3" />
+                  Aktif
+                </Badge>
+              ) : (
+                <Badge variant="secondary">Tidak Aktif</Badge>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {emailAlert ? (
+              <div className="space-y-4">
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm text-muted-foreground">E-mel berdaftar:</p>
+                  <p className="font-medium">{emailAlert.email}</p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Amaran ralat pemprosesan</Label>
+                      <p className="text-xs text-muted-foreground">Terima amaran jika fetch gagal</p>
+                    </div>
+                    <Switch
+                      checked={emailAlert.processing_errors}
+                      onCheckedChange={(checked) =>
+                        updateSettings.mutate({ processingErrors: checked }, {
+                          onSuccess: () => toast.success('Tetapan dikemaskini'),
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Amaran artikel baharu</Label>
+                      <p className="text-xs text-muted-foreground">Terima amaran jika tiada artikel dalam 1 jam</p>
+                    </div>
+                    <Switch
+                      checked={emailAlert.new_articles}
+                      onCheckedChange={(checked) =>
+                        updateSettings.mutate({ newArticles: checked }, {
+                          onSuccess: () => toast.success('Tetapan dikemaskini'),
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  className="w-full text-destructive hover:text-destructive"
+                  onClick={() =>
+                    unsubscribe.mutate(undefined, {
+                      onSuccess: () => toast.success('Berjaya berhenti langganan'),
+                    })
+                  }
+                  disabled={unsubscribe.isPending}
+                >
+                  Berhenti Langganan
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Masukkan e-mel anda untuk menerima amaran automatik apabila sistem pengambilan berita menghadapi masalah.
+                </p>
+
+                <div>
+                  <Label>Alamat E-mel</Label>
+                  <Input
+                    type="email"
+                    value={alertEmail}
+                    onChange={(e) => setAlertEmail(e.target.value)}
+                    placeholder="admin@example.com"
+                    className="mt-1"
+                  />
+                </div>
+
+                <Button
+                  className="w-full"
+                  onClick={() =>
+                    subscribe.mutate(
+                      { email: alertEmail },
+                      {
+                        onSuccess: () => {
+                          toast.success('Berjaya melanggan amaran e-mel!');
+                          setAlertEmail('');
+                        },
+                        onError: () => toast.error('Gagal melanggan'),
+                      }
+                    )
+                  }
+                  disabled={!alertEmail || subscribe.isPending}
+                >
+                  <Bell className="mr-2 h-4 w-4" />
+                  Langgan Amaran
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Alert Logs */}
+        {alertLogs && alertLogs.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Log Amaran Terkini</CardTitle>
+              <CardDescription>Amaran yang telah dihantar</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {alertLogs.slice(0, 5).map((log) => (
+                  <div
+                    key={log.id}
+                    className="flex items-center justify-between rounded-lg border p-3 text-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Badge variant="destructive">{log.alert_type}</Badge>
+                      <span className="text-muted-foreground">
+                        {formatDistanceToNow(new Date(log.sent_at), { addSuffix: true, locale: ms })}
+                      </span>
+                    </div>
+                    <div className="text-muted-foreground">
+                      {log.recipients?.length || 0} penerima
                     </div>
                   </div>
                 ))}
