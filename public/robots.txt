@@ -17,4 +17,4 @@ Allow: /
 Disallow: /admin/
 
 # Sitemap
-Sitemap: https://beritamalaysia.com/sitemap.xml
+Sitemap: https://malainaadu.com/sitemap.xml

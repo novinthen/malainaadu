@@ -23,7 +23,7 @@ export const SITE_CONFIG = {
   name: 'செய்தி மலேசியா',
   tagline: 'மலேசியாவின் சமீபத்திய செய்தி போர்டல்',
   description: 'மலேசியாவின் சமீபத்திய செய்தி போர்டல். மலேசியாவின் நம்பகமான பல ஆதாரங்களிலிருந்து சமீபத்திய செய்திகளைப் பெறுங்கள்.',
-  url: 'https://seithi-malaysia.com',
+  url: 'https://malainaadu.com',
   locale: 'ta_MY',
   language: 'ta',
   author: 'செய்தி மலேசியா',
