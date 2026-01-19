@@ -7,3 +7,6 @@ schedule = "*/15 * * * *"
 [functions.check-fetch-health]
 verify_jwt = false
 schedule = "*/30 * * * *"
+
+[functions.mobile-api]
+verify_jwt = false
