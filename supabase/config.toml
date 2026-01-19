@@ -3,3 +3,7 @@ project_id = "dwopahjycvaocermgesw"
 [functions.fetch-rss]
 verify_jwt = false
 schedule = "*/15 * * * *"
+
+[functions.check-fetch-health]
+verify_jwt = false
+schedule = "*/30 * * * *"
