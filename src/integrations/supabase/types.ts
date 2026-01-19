@@ -244,6 +244,39 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscribers: {
+        Row: {
+          categories: string[] | null
+          created_at: string | null
+          device_info: Json | null
+          device_token: string
+          id: string
+          is_active: boolean | null
+          platform: string
+          updated_at: string | null
+        }
+        Insert: {
+          categories?: string[] | null
+          created_at?: string | null
+          device_info?: Json | null
+          device_token: string
+          id?: string
+          is_active?: boolean | null
+          platform: string
+          updated_at?: string | null
+        }
+        Update: {
+          categories?: string[] | null
+          created_at?: string | null
+          device_info?: Json | null
+          device_token?: string
+          id?: string
+          is_active?: boolean | null
+          platform?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       sources: {
         Row: {
           created_at: string
