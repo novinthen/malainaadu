@@ -272,6 +272,31 @@ serve(async (req) => {
   console.log("Timestamp:", new Date().toISOString());
   console.log("Request method:", req.method);
 
+  // Initialize Supabase client for logging
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const logClient = createClient(supabaseUrl, supabaseServiceKey);
+
+  // Create fetch log entry
+  let fetchLogId: string | null = null;
+  try {
+    const { data: logEntry, error: logError } = await logClient
+      .from("fetch_logs")
+      .insert({
+        status: "running",
+        started_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
+
+    if (!logError && logEntry) {
+      fetchLogId = logEntry.id;
+      console.log("Created fetch log entry:", fetchLogId);
+    }
+  } catch (e) {
+    console.error("Failed to create fetch log:", e);
+  }
+
   // Handle CORS
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -519,6 +544,20 @@ serve(async (req) => {
     console.log(`=== fetch-rss completed in ${duration}ms ===`);
     console.log(`Processed: ${totalProcessed}, Skipped: ${totalSkipped}, Errors: ${errors.length}`);
 
+    // Update fetch log with success
+    if (fetchLogId) {
+      await logClient
+        .from("fetch_logs")
+        .update({
+          status: "success",
+          completed_at: new Date().toISOString(),
+          articles_processed: totalProcessed,
+          articles_skipped: totalSkipped,
+          error_message: errors.length > 0 ? errors.join("; ") : null,
+        })
+        .eq("id", fetchLogId);
+    }
+
     return new Response(
       JSON.stringify({
         message: "RSS fetch completed",
@@ -534,6 +573,19 @@ serve(async (req) => {
   } catch (error) {
     const duration = Date.now() - startTime;
     console.error(`Fetch RSS error after ${duration}ms:`, error);
+
+    // Update fetch log with failure
+    if (fetchLogId) {
+      await logClient
+        .from("fetch_logs")
+        .update({
+          status: "failed",
+          completed_at: new Date().toISOString(),
+          error_message: error instanceof Error ? error.message : "Unknown error",
+        })
+        .eq("id", fetchLogId);
+    }
+
     return new Response(
       JSON.stringify({ 
         error: error instanceof Error ? error.message : "Unknown error",
