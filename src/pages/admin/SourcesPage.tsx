@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, Rss, RefreshCw, Power, PowerOff } from 'lucide-react';
+import { Plus, Edit, Trash2, Rss, RefreshCw, Power, PowerOff, CheckCircle2, AlertTriangle, Clock, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useFetchHealth } from '@/hooks/useFetchHealth';
+import { formatDistanceToNow } from 'date-fns';
+import { ms } from 'date-fns/locale';
 import type { Source } from '@/types/database';
 
 export default function SourcesPage() {
@@ -25,6 +28,9 @@ export default function SourcesPage() {
   const [formRssUrl, setFormRssUrl] = useState('');
   const [formLogoUrl, setFormLogoUrl] = useState('');
   const [formActive, setFormActive] = useState(true);
+
+  // Fetch health monitoring
+  const { data: fetchHealth } = useFetchHealth();
 
   const { data: sources, isLoading } = useQuery({
     queryKey: ['admin-sources'],
@@ -161,6 +167,7 @@ export default function SourcesPage() {
       toast.success(`Berjaya! ${data.processed} artikel baharu diproses.`);
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       queryClient.invalidateQueries({ queryKey: ['pending-articles'] });
+      queryClient.invalidateQueries({ queryKey: ['fetch-health'] });
     },
     onError: () => {
       toast.error('Gagal mengambil artikel');
@@ -210,6 +217,129 @@ export default function SourcesPage() {
             </Button>
           </div>
         </div>
+
+        {/* Fetch Health Status Cards */}
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Status Sistem</CardTitle>
+              {fetchHealth?.isHealthy ? (
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+              ) : (
+                <AlertTriangle className="h-4 w-4 text-yellow-500" />
+              )}
+            </CardHeader>
+            <CardContent>
+              <div className={`text-2xl font-bold ${fetchHealth?.isHealthy ? 'text-green-600' : 'text-yellow-600'}`}>
+                {fetchHealth?.isHealthy ? 'Sihat' : 'Perlu Perhatian'}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {fetchHealth?.isHealthy ? 'Cron berjalan normal' : 'Tiada fetch dalam 30 minit'}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Fetch Terakhir</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {fetchHealth?.lastFetch?.completed_at
+                  ? formatDistanceToNow(new Date(fetchHealth.lastFetch.completed_at), { addSuffix: true, locale: ms })
+                  : 'Tiada'}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {fetchHealth?.lastFetch?.status === 'success' ? (
+                  <span className="text-green-600">✓ Berjaya</span>
+                ) : fetchHealth?.lastFetch?.status === 'failed' ? (
+                  <span className="text-red-600">✗ Gagal</span>
+                ) : fetchHealth?.lastFetch?.status === 'running' ? (
+                  <span className="text-blue-600">⟳ Sedang berjalan</span>
+                ) : (
+                  'Tiada rekod'
+                )}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Artikel Hari Ini</CardTitle>
+              <FileText className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{fetchHealth?.articlesToday || 0}</div>
+              <p className="text-xs text-muted-foreground">Artikel baharu ditambah</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Fetch Terakhir</CardTitle>
+              <Rss className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                +{fetchHealth?.lastFetch?.articles_processed || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {fetchHealth?.lastFetch?.articles_skipped || 0} dilangkau (duplikat)
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Fetch Logs */}
+        {fetchHealth?.recentLogs && fetchHealth.recentLogs.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Log Pengambilan Terkini</CardTitle>
+              <CardDescription>10 fetch log terakhir</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {fetchHealth.recentLogs.slice(0, 5).map((log) => (
+                  <div
+                    key={log.id}
+                    className="flex items-center justify-between rounded-lg border p-3 text-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Badge
+                        variant={
+                          log.status === 'success'
+                            ? 'default'
+                            : log.status === 'failed'
+                            ? 'destructive'
+                            : 'secondary'
+                        }
+                      >
+                        {log.status}
+                      </Badge>
+                      <span className="text-muted-foreground">
+                        {formatDistanceToNow(new Date(log.started_at), { addSuffix: true, locale: ms })}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 text-muted-foreground">
+                      {log.articles_processed !== null && (
+                        <span className="text-green-600">+{log.articles_processed}</span>
+                      )}
+                      {log.articles_skipped !== null && log.articles_skipped > 0 && (
+                        <span>⏭ {log.articles_skipped}</span>
+                      )}
+                      {log.error_message && (
+                        <span className="max-w-[200px] truncate text-red-500" title={log.error_message}>
+                          {log.error_message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Sources Table */}
         <Card>
