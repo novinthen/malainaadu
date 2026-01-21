@@ -10,3 +10,6 @@ schedule = "*/30 * * * *"
 
 [functions.mobile-api]
 verify_jwt = false
+
+[functions.post-to-facebook]
+verify_jwt = false

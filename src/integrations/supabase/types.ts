@@ -211,6 +211,44 @@ export type Database = {
         }
         Relationships: []
       }
+      facebook_post_logs: {
+        Row: {
+          article_id: string
+          attempted_at: string
+          created_at: string
+          error_message: string | null
+          id: string
+          response_data: Json | null
+          status: string
+        }
+        Insert: {
+          article_id: string
+          attempted_at?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          response_data?: Json | null
+          status?: string
+        }
+        Update: {
+          article_id?: string
+          attempted_at?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          response_data?: Json | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facebook_post_logs_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fetch_logs: {
         Row: {
           articles_processed: number | null

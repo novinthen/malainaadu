@@ -505,27 +505,27 @@ serve(async (req) => {
             totalProcessed++;
             console.log(`Successfully inserted: ${item.title.substring(0, 40)}...`);
 
-            // Send to Make.com webhook
+            // Trigger Facebook posting via dedicated function
             if (insertedArticle) {
-              const siteUrl = Deno.env.get("SITE_URL") || "https://beritamalaysia.com";
-              const webhookSuccess = await sendToMakeWebhook({
-                article_id: insertedArticle.id,
-                title: processed.newTitle,
-                excerpt: processed.excerpt,
-                content: processed.content,
-                image_url: item.imageUrl,
-                article_url: `${siteUrl}/article/${insertedArticle.slug}`,
-                category: category?.slug || "nasional",
-                source_name: source.name,
-                published_at: publishDate,
-              });
-
-              // Update posted_to_facebook status if webhook succeeded
-              if (webhookSuccess) {
-                await supabase
-                  .from("articles")
-                  .update({ posted_to_facebook: true })
-                  .eq("id", insertedArticle.id);
+              try {
+                const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+                const response = await fetch(
+                  `${supabaseUrl}/functions/v1/post-to-facebook`,
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ article_id: insertedArticle.id }),
+                  }
+                );
+                
+                if (response.ok) {
+                  console.log(`Facebook post triggered for: ${insertedArticle.id}`);
+                } else {
+                  console.log(`Facebook post failed (will retry later): ${response.status}`);
+                }
+              } catch (fbError) {
+                console.error("Facebook post trigger failed:", fbError);
+                // Don't block - article is saved, FB post can be retried from admin
               }
             }
           }

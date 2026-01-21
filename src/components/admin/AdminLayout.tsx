@@ -8,8 +8,7 @@ import {
   Settings,
   LogOut,
   Menu,
-  X,
-  ChevronRight,
+  Facebook,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
@@ -25,6 +24,7 @@ const navItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/admin/moderation', icon: Clock, label: 'Moderasi' },
   { href: '/admin/articles', icon: FileText, label: 'Artikel' },
+  { href: '/admin/facebook', icon: Facebook, label: 'Facebook' },
   { href: '/admin/sources', icon: Rss, label: 'Sumber' },
   { href: '/admin/settings', icon: Settings, label: 'Tetapan' },
 ];

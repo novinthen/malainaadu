@@ -56,11 +56,22 @@ export default function ModerationPage() {
         .eq('id', id);
 
       if (error) throw error;
+      
+      // Trigger Facebook posting
+      try {
+        await supabase.functions.invoke('post-to-facebook', {
+          body: { article_id: id },
+        });
+        console.log('Facebook post triggered for article:', id);
+      } catch (fbError) {
+        console.error('Facebook post trigger failed:', fbError);
+        // Don't block approval - FB post can be retried from admin panel
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pending-articles'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-      toast.success('Artikel telah diluluskan!');
+      toast.success('Artikel telah diluluskan dan dihantar ke Facebook!');
       setSelectedArticle(null);
     },
     onError: () => {
