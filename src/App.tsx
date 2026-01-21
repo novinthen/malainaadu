@@ -26,6 +26,7 @@ const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const ModerationPage = lazy(() => import("./pages/admin/ModerationPage"));
 const ArticlesPage = lazy(() => import("./pages/admin/ArticlesPage"));
+const FacebookPage = lazy(() => import("./pages/admin/FacebookPage"));
 const SourcesPage = lazy(() => import("./pages/admin/SourcesPage"));
 const SettingsPage = lazy(() => import("./pages/admin/SettingsPage"));
 
@@ -117,6 +118,16 @@ const App = () => (
                   <Suspense fallback={<AdminLoadingFallback />}>
                     <ProtectedRoute>
                       <ArticlesPage />
+                    </ProtectedRoute>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/admin/facebook"
+                element={
+                  <Suspense fallback={<AdminLoadingFallback />}>
+                    <ProtectedRoute>
+                      <FacebookPage />
                     </ProtectedRoute>
                   </Suspense>
                 }
