@@ -1,17 +1,34 @@
 /**
  * Date formatting utilities
  * Centralized date formatting for consistent display across the app
+ * All times are displayed in Malaysia timezone (Asia/Kuala_Lumpur, UTC+8)
  */
 
-import { formatDistanceToNow, format, differenceInMinutes, differenceInHours, differenceInDays } from 'date-fns';
+import { differenceInMinutes, differenceInHours, differenceInDays } from 'date-fns';
+import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 import { ms } from 'date-fns/locale';
+
+const MALAYSIA_TZ = 'Asia/Kuala_Lumpur';
 
 /**
  * Format a date as relative time (e.g., "2 jam lalu")
  */
 export function formatTimeAgo(date: string | Date | null | undefined): string | null {
   if (!date) return null;
-  return formatDistanceToNow(new Date(date), { addSuffix: true, locale: ms });
+  const now = toZonedTime(new Date(), MALAYSIA_TZ);
+  const dateObj = toZonedTime(new Date(date), MALAYSIA_TZ);
+  
+  const minutes = differenceInMinutes(now, dateObj);
+  const hours = differenceInHours(now, dateObj);
+  const days = differenceInDays(now, dateObj);
+  
+  if (minutes < 1) return 'baru sahaja';
+  if (minutes < 60) return `${minutes} minit lalu`;
+  if (hours < 24) return `${hours} jam lalu`;
+  if (days === 1) return 'semalam';
+  if (days < 7) return `${days} hari lalu`;
+  
+  return formatInTimeZone(new Date(date), MALAYSIA_TZ, 'd MMM yyyy', { locale: ms });
 }
 
 /**
@@ -20,20 +37,20 @@ export function formatTimeAgo(date: string | Date | null | undefined): string | 
 export function formatRelativeTime(date: string | Date | null | undefined): string {
   if (!date) return '';
   
-  const now = new Date();
-  const dateObj = new Date(date);
+  const now = toZonedTime(new Date(), MALAYSIA_TZ);
+  const dateObj = toZonedTime(new Date(date), MALAYSIA_TZ);
   
   const minutes = differenceInMinutes(now, dateObj);
   const hours = differenceInHours(now, dateObj);
   const days = differenceInDays(now, dateObj);
   
   // Show "இன்று HH:mm" for articles less than an hour old
-  if (minutes < 60) return `இன்று ${format(dateObj, 'HH:mm')}`;
+  if (minutes < 60) return `இன்று ${formatInTimeZone(new Date(date), MALAYSIA_TZ, 'HH:mm')}`;
   if (hours < 24) return `${hours} மணி நேரம் முன்`;
   if (days === 1) return 'நேற்று';
   if (days < 7) return `${days} நாள் முன்`;
   
-  return format(dateObj, 'd MMM', { locale: ms });
+  return formatInTimeZone(new Date(date), MALAYSIA_TZ, 'd MMM', { locale: ms });
 }
 
 /**
@@ -41,7 +58,7 @@ export function formatRelativeTime(date: string | Date | null | undefined): stri
  */
 export function formatPublishDate(date: string | Date | null | undefined): string | null {
   if (!date) return null;
-  return format(new Date(date), 'd MMMM yyyy, HH:mm', { locale: ms });
+  return formatInTimeZone(new Date(date), MALAYSIA_TZ, 'd MMMM yyyy, HH:mm', { locale: ms });
 }
 
 /**
@@ -49,7 +66,7 @@ export function formatPublishDate(date: string | Date | null | undefined): strin
  */
 export function formatShortDate(date: string | Date | null | undefined): string | null {
   if (!date) return null;
-  return format(new Date(date), 'd MMM yyyy', { locale: ms });
+  return formatInTimeZone(new Date(date), MALAYSIA_TZ, 'd MMM yyyy', { locale: ms });
 }
 
 /**
@@ -57,7 +74,7 @@ export function formatShortDate(date: string | Date | null | undefined): string 
  */
 export function formatTableDate(date: string | Date | null | undefined): string | null {
   if (!date) return null;
-  return format(new Date(date), 'dd/MM/yyyy', { locale: ms });
+  return formatInTimeZone(new Date(date), MALAYSIA_TZ, 'dd/MM/yyyy', { locale: ms });
 }
 
 /**
@@ -65,5 +82,5 @@ export function formatTableDate(date: string | Date | null | undefined): string 
  */
 export function formatDateTimeLocal(date: string | Date | null | undefined): string | null {
   if (!date) return null;
-  return format(new Date(date), "yyyy-MM-dd'T'HH:mm");
+  return formatInTimeZone(new Date(date), MALAYSIA_TZ, "yyyy-MM-dd'T'HH:mm");
 }
