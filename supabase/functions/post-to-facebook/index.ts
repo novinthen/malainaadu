@@ -123,7 +123,7 @@ serve(async (req) => {
     }
 
     // Build article URL
-    const siteUrl = 'https://malainaadu.lovable.app';
+    const siteUrl = 'https://malainaadu.com';
     const articleUrl = `${siteUrl}/berita/${typedArticle.slug}`;
 
     // Prepare payload for Make.com
@@ -217,7 +217,7 @@ serve(async (req) => {
 
           if (adminEmails.length > 0) {
             await resend.emails.send({
-              from: 'Berita Malaysia <alerts@malainaadu.lovable.app>',
+              from: 'MalaiNaadu <alerts@malainaadu.com>',
               to: adminEmails,
               subject: `⚠️ Facebook Post Failed - ${typedArticle.title.substring(0, 50)}...`,
               html: `

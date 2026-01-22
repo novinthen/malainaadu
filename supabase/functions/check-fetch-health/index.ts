@@ -216,7 +216,7 @@ serve(async (req: Request): Promise<Response> => {
     console.log(`Sending alert email to ${emailRecipients.length} recipient(s)`);
 
     const emailResponse = await resend.emails.send({
-      from: "MalaiNaadu <onboarding@resend.dev>",
+      from: "MalaiNaadu <alerts@malainaadu.com>",
       to: emailRecipients,
       subject: "⚠️ Amaran Sistem MalaiNaadu - Masalah Pengambilan Berita",
       html: emailHtml,
