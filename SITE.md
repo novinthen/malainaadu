@@ -141,6 +141,9 @@
 | `fetch-rss` | Cron (hourly) | Fetches articles from RSS sources |
 | `reprocess-articles` | Manual | Reformats article content with AI |
 | `sitemap` | HTTP GET | Generates XML sitemap |
+| `mobile-api` | HTTP | Mobile app REST API with caching & versioning |
+
+> **Mobile API Documentation**: See [docs/MOBILE_API.md](docs/MOBILE_API.md) for full API reference.
 
 ---
 

@@ -3,9 +3,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-platform, x-device-token',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-platform, x-device-token, if-none-match, if-modified-since',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Expose-Headers': 'etag, x-api-version, cache-control, last-modified',
 };
+
+const API_VERSION = 'v1';
+const API_VERSION_NUMBER = 1;
 
 interface ApiResponse {
   success: boolean;
@@ -18,18 +22,111 @@ interface ApiResponse {
     total_pages?: number;
     query?: string;
     redirected_from?: string;
+    api_version?: string;
   };
 }
 
+interface CacheOptions {
+  maxAge?: number;              // seconds for max-age
+  staleWhileRevalidate?: number; // seconds for stale-while-revalidate
+  isPrivate?: boolean;           // private vs public cache
+  noStore?: boolean;             // no-store for sensitive data
+}
+
+// Generate ETag from response data
+function generateETag(data: unknown): string {
+  const content = JSON.stringify(data);
+  let hash = 0;
+  for (let i = 0; i < content.length; i++) {
+    const char = content.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return `"${Math.abs(hash).toString(16)}"`;
+}
+
+// Build Cache-Control header value
+function buildCacheControl(options: CacheOptions): string {
+  if (options.noStore) {
+    return 'no-store, no-cache, must-revalidate';
+  }
+  
+  const directives: string[] = [];
+  directives.push(options.isPrivate ? 'private' : 'public');
+  directives.push(`max-age=${options.maxAge ?? 60}`);
+  
+  if (options.staleWhileRevalidate) {
+    directives.push(`stale-while-revalidate=${options.staleWhileRevalidate}`);
+  }
+  
+  return directives.join(', ');
+}
+
+// JSON response with caching headers
+function jsonResponseWithCache(
+  data: ApiResponse, 
+  cacheOptions: CacheOptions = {}, 
+  status = 200
+): Response {
+  const etag = generateETag(data);
+  const lastModified = new Date().toUTCString();
+  
+  // Add API version to meta
+  if (data.meta) {
+    data.meta.api_version = API_VERSION;
+  } else if (data.success) {
+    data.meta = { api_version: API_VERSION };
+  }
+  
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 
+      ...corsHeaders, 
+      'Content-Type': 'application/json',
+      'Cache-Control': buildCacheControl(cacheOptions),
+      'ETag': etag,
+      'Last-Modified': lastModified,
+      'X-API-Version': API_VERSION,
+    },
+  });
+}
+
+// Simple JSON response without caching (for errors)
 function jsonResponse(data: ApiResponse, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { 
+      ...corsHeaders, 
+      'Content-Type': 'application/json',
+      'X-API-Version': API_VERSION,
+    },
   });
 }
 
 function errorResponse(message: string, status = 400): Response {
   return jsonResponse({ success: false, error: message }, status);
+}
+
+// Check If-None-Match for 304 response
+function checkETagMatch(req: Request, etag: string): boolean {
+  const ifNoneMatch = req.headers.get('If-None-Match');
+  if (ifNoneMatch) {
+    // Handle weak ETags and multiple values
+    const tags = ifNoneMatch.split(',').map(t => t.trim().replace(/^W\//, ''));
+    return tags.includes(etag) || tags.includes(etag.replace(/^W\//, ''));
+  }
+  return false;
+}
+
+// Return 304 Not Modified response
+function notModifiedResponse(): Response {
+  return new Response(null, {
+    status: 304,
+    headers: {
+      ...corsHeaders,
+      'X-API-Version': API_VERSION,
+    },
+  });
 }
 
 // Calculate estimated read time (words per minute)
@@ -75,6 +172,30 @@ function transformArticleDetail(article: any) {
   };
 }
 
+// Parse API version from path (e.g., /v1/news/featured -> version 1)
+function parseApiVersion(pathParts: string[]): { version: number; path: string[] } {
+  if (pathParts.length > 0 && pathParts[0].match(/^v(\d+)$/)) {
+    const version = parseInt(pathParts[0].substring(1));
+    return { version, path: pathParts.slice(1) };
+  }
+  // Default to v1 for backward compatibility
+  return { version: API_VERSION_NUMBER, path: pathParts };
+}
+
+// Cache durations by endpoint type (in seconds)
+const CACHE_SETTINGS = {
+  health: { maxAge: 30, staleWhileRevalidate: 60 },
+  stats: { maxAge: 30, staleWhileRevalidate: 60 },
+  categories: { maxAge: 3600, staleWhileRevalidate: 7200 },  // 1 hour, SWR 2 hours
+  featured: { maxAge: 60, staleWhileRevalidate: 300 },       // 1 min, SWR 5 min
+  trending: { maxAge: 120, staleWhileRevalidate: 600 },      // 2 min, SWR 10 min
+  breaking: { maxAge: 30, staleWhileRevalidate: 60 },        // 30 sec, SWR 1 min
+  category: { maxAge: 120, staleWhileRevalidate: 600 },      // 2 min, SWR 10 min
+  search: { maxAge: 60, staleWhileRevalidate: 300 },         // 1 min, SWR 5 min
+  articleDetail: { maxAge: 300, staleWhileRevalidate: 1800 }, // 5 min, SWR 30 min
+  notifications: { noStore: true },                          // No caching for POST
+};
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -92,19 +213,21 @@ serve(async (req) => {
     
     // Remove 'mobile-api' from path if present
     const apiIndex = pathParts.indexOf('mobile-api');
-    const path = apiIndex >= 0 ? pathParts.slice(apiIndex + 1) : pathParts;
+    let rawPath = apiIndex >= 0 ? pathParts.slice(apiIndex + 1) : pathParts;
+    
+    // Parse version and get actual path
+    const { version: apiVersion, path } = parseApiVersion(rawPath);
     
     // Parse common query params
     const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
     const perPage = Math.min(50, Math.max(1, parseInt(url.searchParams.get('per_page') || '20')));
     const since = url.searchParams.get('since');
-    const sort = url.searchParams.get('sort') || 'publish_date';
     const order = url.searchParams.get('order') === 'asc' ? true : false;
 
-    console.log(`[Mobile API] ${req.method} /${path.join('/')} - Page: ${page}, PerPage: ${perPage}`);
+    console.log(`[Mobile API v${apiVersion}] ${req.method} /${path.join('/')} - Page: ${page}, PerPage: ${perPage}`);
 
     // ============================================
-    // GET /categories - List all categories
+    // GET /v1/categories - List all categories
     // ============================================
     if (path[0] === 'categories' && req.method === 'GET') {
       const { data: categories, error } = await supabase
@@ -114,14 +237,22 @@ serve(async (req) => {
 
       if (error) throw error;
 
-      return jsonResponse({
+      const responseData: ApiResponse = {
         success: true,
         data: categories,
-      });
+      };
+
+      // Check ETag for conditional request
+      const etag = generateETag(responseData);
+      if (checkETagMatch(req, etag)) {
+        return notModifiedResponse();
+      }
+
+      return jsonResponseWithCache(responseData, CACHE_SETTINGS.categories);
     }
 
     // ============================================
-    // GET /news/featured - Featured & latest articles
+    // GET /v1/news/featured - Featured & latest articles
     // ============================================
     if (path[0] === 'news' && path[1] === 'featured' && req.method === 'GET') {
       // Get total count
@@ -149,7 +280,7 @@ serve(async (req) => {
       const { data: articles, error } = await query;
       if (error) throw error;
 
-      return jsonResponse({
+      const responseData: ApiResponse = {
         success: true,
         data: articles?.map(transformArticle) || [],
         meta: {
@@ -158,11 +289,18 @@ serve(async (req) => {
           total: count || 0,
           total_pages: Math.ceil((count || 0) / perPage),
         },
-      });
+      };
+
+      const etag = generateETag(responseData);
+      if (checkETagMatch(req, etag)) {
+        return notModifiedResponse();
+      }
+
+      return jsonResponseWithCache(responseData, CACHE_SETTINGS.featured);
     }
 
     // ============================================
-    // GET /news/trending - Trending by view count
+    // GET /v1/news/trending - Trending by view count
     // ============================================
     if (path[0] === 'news' && path[1] === 'trending' && req.method === 'GET') {
       const { count } = await supabase
@@ -184,7 +322,7 @@ serve(async (req) => {
 
       if (error) throw error;
 
-      return jsonResponse({
+      const responseData: ApiResponse = {
         success: true,
         data: articles?.map(transformArticle) || [],
         meta: {
@@ -193,11 +331,18 @@ serve(async (req) => {
           total: count || 0,
           total_pages: Math.ceil((count || 0) / perPage),
         },
-      });
+      };
+
+      const etag = generateETag(responseData);
+      if (checkETagMatch(req, etag)) {
+        return notModifiedResponse();
+      }
+
+      return jsonResponseWithCache(responseData, CACHE_SETTINGS.trending);
     }
 
     // ============================================
-    // GET /news/breaking - Breaking news
+    // GET /v1/news/breaking - Breaking news
     // ============================================
     if (path[0] === 'news' && path[1] === 'breaking' && req.method === 'GET') {
       const { count } = await supabase
@@ -220,7 +365,7 @@ serve(async (req) => {
 
       if (error) throw error;
 
-      return jsonResponse({
+      const responseData: ApiResponse = {
         success: true,
         data: articles?.map(transformArticle) || [],
         meta: {
@@ -229,11 +374,18 @@ serve(async (req) => {
           total: count || 0,
           total_pages: Math.ceil((count || 0) / perPage),
         },
-      });
+      };
+
+      const etag = generateETag(responseData);
+      if (checkETagMatch(req, etag)) {
+        return notModifiedResponse();
+      }
+
+      return jsonResponseWithCache(responseData, CACHE_SETTINGS.breaking);
     }
 
     // ============================================
-    // GET /news/category/:slug - Articles by category
+    // GET /v1/news/category/:slug - Articles by category
     // ============================================
     if (path[0] === 'news' && path[1] === 'category' && path[2] && req.method === 'GET') {
       const categorySlug = path[2];
@@ -274,7 +426,7 @@ serve(async (req) => {
       const { data: articles, error } = await query;
       if (error) throw error;
 
-      return jsonResponse({
+      const responseData: ApiResponse = {
         success: true,
         data: {
           category,
@@ -286,20 +438,27 @@ serve(async (req) => {
           total: count || 0,
           total_pages: Math.ceil((count || 0) / perPage),
         },
-      });
+      };
+
+      const etag = generateETag(responseData);
+      if (checkETagMatch(req, etag)) {
+        return notModifiedResponse();
+      }
+
+      return jsonResponseWithCache(responseData, CACHE_SETTINGS.category);
     }
 
     // ============================================
-    // GET /news/search?q=query - Search articles
+    // GET /v1/news/search?q=query - Search articles
     // ============================================
     if (path[0] === 'news' && path[1] === 'search' && req.method === 'GET') {
-      const query = url.searchParams.get('q');
+      const searchQuery = url.searchParams.get('q');
 
-      if (!query || query.trim().length < 2) {
+      if (!searchQuery || searchQuery.trim().length < 2) {
         return errorResponse('Search query must be at least 2 characters', 400);
       }
 
-      const searchTerm = `%${query.trim()}%`;
+      const searchTerm = `%${searchQuery.trim()}%`;
 
       const { count } = await supabase
         .from('articles')
@@ -321,7 +480,7 @@ serve(async (req) => {
 
       if (error) throw error;
 
-      return jsonResponse({
+      const responseData: ApiResponse = {
         success: true,
         data: articles?.map(transformArticle) || [],
         meta: {
@@ -329,13 +488,20 @@ serve(async (req) => {
           per_page: perPage,
           total: count || 0,
           total_pages: Math.ceil((count || 0) / perPage),
-          query: query.trim(),
+          query: searchQuery.trim(),
         },
-      });
+      };
+
+      const etag = generateETag(responseData);
+      if (checkETagMatch(req, etag)) {
+        return notModifiedResponse();
+      }
+
+      return jsonResponseWithCache(responseData, CACHE_SETTINGS.search);
     }
 
     // ============================================
-    // GET /news/:slug - Single article detail
+    // GET /v1/news/:slug - Single article detail
     // ============================================
     if (path[0] === 'news' && path[1] && !['featured', 'trending', 'breaking', 'category', 'search'].includes(path[1]) && req.method === 'GET') {
       const slug = path[1];
@@ -367,19 +533,21 @@ serve(async (req) => {
           .single();
 
         if (redirectArticle) {
-          return jsonResponse({
+          const responseData: ApiResponse = {
             success: true,
             data: transformArticleDetail(redirectArticle),
             meta: {
               redirected_from: slug,
             },
-          });
+          };
+
+          return jsonResponseWithCache(responseData, CACHE_SETTINGS.articleDetail);
         }
 
         return errorResponse('Article not found', 404);
       }
 
-      // Record view
+      // Record view (don't cache view recording)
       await supabase.from('article_views').insert({ article_id: article.id });
 
       // Update view count
@@ -388,14 +556,18 @@ serve(async (req) => {
         .update({ view_count: (article.view_count || 0) + 1 })
         .eq('id', article.id);
 
-      return jsonResponse({
+      const responseData: ApiResponse = {
         success: true,
         data: transformArticleDetail(article),
-      });
+      };
+
+      // Note: We still cache the response even though views are recorded
+      // The ETag will change when content changes, not on every view
+      return jsonResponseWithCache(responseData, CACHE_SETTINGS.articleDetail);
     }
 
     // ============================================
-    // POST /notifications/subscribe - Subscribe to push
+    // POST /v1/notifications/subscribe - Subscribe to push
     // ============================================
     if (path[0] === 'notifications' && path[1] === 'subscribe' && req.method === 'POST') {
       const body = await req.json();
@@ -429,6 +601,7 @@ serve(async (req) => {
 
       console.log(`[Push] Subscribed device: ${platform} - ${device_token.substring(0, 20)}...`);
 
+      // No caching for POST requests
       return jsonResponse({
         success: true,
         data: {
@@ -440,7 +613,7 @@ serve(async (req) => {
     }
 
     // ============================================
-    // POST /notifications/unsubscribe - Unsubscribe
+    // POST /v1/notifications/unsubscribe - Unsubscribe
     // ============================================
     if (path[0] === 'notifications' && path[1] === 'unsubscribe' && req.method === 'POST') {
       const body = await req.json();
@@ -466,7 +639,7 @@ serve(async (req) => {
     }
 
     // ============================================
-    // GET /stats - API stats (optional)
+    // GET /v1/stats - API stats
     // ============================================
     if (path[0] === 'stats' && req.method === 'GET') {
       const [articlesResult, categoriesResult, subscribersResult] = await Promise.all([
@@ -475,29 +648,38 @@ serve(async (req) => {
         supabase.from('push_subscribers').select('*', { count: 'exact', head: true }).eq('is_active', true),
       ]);
 
-      return jsonResponse({
+      const responseData: ApiResponse = {
         success: true,
         data: {
           total_articles: articlesResult.count || 0,
           total_categories: categoriesResult.count || 0,
           active_subscribers: subscribersResult.count || 0,
-          api_version: '1.0.0',
+          api_version: API_VERSION,
         },
-      });
+      };
+
+      const etag = generateETag(responseData);
+      if (checkETagMatch(req, etag)) {
+        return notModifiedResponse();
+      }
+
+      return jsonResponseWithCache(responseData, CACHE_SETTINGS.stats);
     }
 
     // ============================================
-    // Health check
+    // GET /v1/health - Health check
     // ============================================
     if (path[0] === 'health' || path.length === 0) {
-      return jsonResponse({
+      const responseData: ApiResponse = {
         success: true,
         data: {
           status: 'healthy',
           timestamp: new Date().toISOString(),
-          version: '1.0.0',
+          version: API_VERSION,
         },
-      });
+      };
+
+      return jsonResponseWithCache(responseData, CACHE_SETTINGS.health);
     }
 
     // Not found
