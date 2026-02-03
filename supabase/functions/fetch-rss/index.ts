@@ -130,12 +130,11 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-// Use Gemini to rewrite article and categorize
-async function processWithGemini(
+// Use Lovable AI to rewrite article and categorize
+async function processWithAI(
   title: string,
   description: string,
-  categories: Category[],
-  geminiApiKey: string
+  categories: Category[]
 ): Promise<{ newTitle: string; content: string; excerpt: string; categorySlug: string }> {
   const categoryList = categories.map(c => c.slug).join(', ');
   
@@ -165,57 +164,90 @@ Reply in JSON format only:
   "category": "category_slug"
 }`;
 
-  try {
-    // Use timeout for Gemini API call (15 seconds)
-    const response = await fetchWithTimeout(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1024,
-          },
-        }),
-      },
-      15000 // 15 second timeout for AI processing
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Gemini API error:", response.status, errorText);
-      throw new Error(`Gemini API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    
-    // Extract JSON from response (handle markdown code blocks)
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("No JSON found in Gemini response");
-    }
-    
-    const result = JSON.parse(jsonMatch[0]);
-    
-    return {
-      newTitle: result.title || title,
-      content: result.content || description,
-      excerpt: result.excerpt || description.substring(0, 160),
-      categorySlug: result.category || "nasional",
-    };
-  } catch (error) {
-    console.error("Gemini processing error:", error);
-    // Fallback: return original content
-    return {
-      newTitle: title,
-      content: description,
-      excerpt: description.substring(0, 160),
-      categorySlug: "nasional",
-    };
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!LOVABLE_API_KEY) {
+    throw new Error("LOVABLE_API_KEY is not configured");
   }
+
+  const response = await fetchWithTimeout(
+    "https://ai.gateway.lovable.dev/v1/chat/completions",
+    {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [{ role: "user", content: prompt }],
+      }),
+    },
+    20000 // 20 second timeout for AI processing
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Lovable AI error:", response.status, errorText);
+    throw new Error(`Lovable AI error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const text = data.choices?.[0]?.message?.content || "";
+  
+  // Extract JSON from response (handle markdown code blocks)
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error("No JSON found in AI response");
+  }
+  
+  const result = JSON.parse(jsonMatch[0]);
+  
+  return {
+    newTitle: result.title || title,
+    content: result.content || description,
+    excerpt: result.excerpt || description.substring(0, 160),
+    categorySlug: result.category || "nasional",
+  };
+}
+
+// Wrapper with exponential backoff retry logic
+async function processWithRetry(
+  title: string,
+  description: string,
+  categories: Category[],
+  maxRetries = 3
+): Promise<{ newTitle: string; content: string; excerpt: string; categorySlug: string }> {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await processWithAI(title, description, categories);
+    } catch (error) {
+      console.error(`AI processing attempt ${attempt} failed:`, error);
+      
+      if (attempt === maxRetries) {
+        // Fallback: return original content
+        console.log("Max retries exceeded, using fallback content");
+        return {
+          newTitle: title,
+          content: description,
+          excerpt: description.substring(0, 160),
+          categorySlug: "nasional",
+        };
+      }
+      
+      // Exponential backoff: 1s, 2s, 4s
+      const delay = Math.pow(2, attempt - 1) * 1000;
+      console.log(`Retry ${attempt}/${maxRetries} after ${delay}ms`);
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
+  
+  // Should never reach here but TypeScript requires it
+  return {
+    newTitle: title,
+    content: description,
+    excerpt: description.substring(0, 160),
+    categorySlug: "nasional",
+  };
 }
 
 // Send article to Make.com webhook - returns true if successful
@@ -361,11 +393,11 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
+    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
-    if (!geminiApiKey) {
-      console.error("GEMINI_API_KEY is not configured");
-      throw new Error("GEMINI_API_KEY is not configured");
+    if (!lovableApiKey) {
+      console.error("LOVABLE_API_KEY is not configured");
+      throw new Error("LOVABLE_API_KEY is not configured");
     }
 
     console.log("Environment variables loaded successfully");
@@ -451,14 +483,13 @@ serve(async (req) => {
             continue;
           }
 
-          // Process with Gemini AI
+          // Process with Lovable AI (with retry logic)
           console.log(`Processing article: ${item.title.substring(0, 50)}...`);
           
-          const processed = await processWithGemini(
+          const processed = await processWithRetry(
             item.title,
             item.description,
-            categories as Category[],
-            geminiApiKey
+            categories as Category[]
           );
 
           // Find category ID
@@ -530,8 +561,8 @@ serve(async (req) => {
             }
           }
 
-          // Small delay to avoid rate limiting
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          // Delay between articles to avoid rate limiting (1 second)
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       } catch (sourceError) {
         const errorMsg = `Error processing source ${source.name}: ${sourceError instanceof Error ? sourceError.message : sourceError}`;
