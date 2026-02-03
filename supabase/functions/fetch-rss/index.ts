@@ -130,11 +130,12 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-// Use Lovable AI to rewrite article and categorize
-async function processWithAI(
+// Use Google Gemini to rewrite article and categorize
+async function processWithGemini(
   title: string,
   description: string,
-  categories: Category[]
+  categories: Category[],
+  geminiApiKey: string
 ): Promise<{ newTitle: string; content: string; excerpt: string; categorySlug: string }> {
   const categoryList = categories.map(c => c.slug).join(', ');
   
@@ -164,22 +165,17 @@ Reply in JSON format only:
   "category": "category_slug"
 }`;
 
-  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-  if (!LOVABLE_API_KEY) {
-    throw new Error("LOVABLE_API_KEY is not configured");
-  }
-
   const response = await fetchWithTimeout(
-    "https://ai.gateway.lovable.dev/v1/chat/completions",
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
     {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [{ role: "user", content: prompt }],
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1024,
+        },
       }),
     },
     20000 // 20 second timeout for AI processing
@@ -187,17 +183,17 @@ Reply in JSON format only:
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("Lovable AI error:", response.status, errorText);
-    throw new Error(`Lovable AI error: ${response.status}`);
+    console.error("Gemini API error:", response.status, errorText);
+    throw new Error(`Gemini API error: ${response.status}`);
   }
 
   const data = await response.json();
-  const text = data.choices?.[0]?.message?.content || "";
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
   
   // Extract JSON from response (handle markdown code blocks)
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
-    throw new Error("No JSON found in AI response");
+    throw new Error("No JSON found in Gemini response");
   }
   
   const result = JSON.parse(jsonMatch[0]);
@@ -215,11 +211,12 @@ async function processWithRetry(
   title: string,
   description: string,
   categories: Category[],
+  geminiApiKey: string,
   maxRetries = 3
 ): Promise<{ newTitle: string; content: string; excerpt: string; categorySlug: string }> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      return await processWithAI(title, description, categories);
+      return await processWithGemini(title, description, categories, geminiApiKey);
     } catch (error) {
       console.error(`AI processing attempt ${attempt} failed:`, error);
       
@@ -393,11 +390,11 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+    const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
 
-    if (!lovableApiKey) {
-      console.error("LOVABLE_API_KEY is not configured");
-      throw new Error("LOVABLE_API_KEY is not configured");
+    if (!geminiApiKey) {
+      console.error("GEMINI_API_KEY is not configured");
+      throw new Error("GEMINI_API_KEY is not configured");
     }
 
     console.log("Environment variables loaded successfully");
@@ -483,13 +480,14 @@ serve(async (req) => {
             continue;
           }
 
-          // Process with Lovable AI (with retry logic)
+          // Process with Gemini AI (with retry logic)
           console.log(`Processing article: ${item.title.substring(0, 50)}...`);
           
           const processed = await processWithRetry(
             item.title,
             item.description,
-            categories as Category[]
+            categories as Category[],
+            geminiApiKey
           );
 
           // Find category ID
