@@ -10,6 +10,7 @@ import { useAdminAnalytics, useTopPerformingArticles } from '@/hooks/useAdminAna
 import { useRealtimeAnalytics } from '@/hooks/useRealtimeAnalytics';
 import { LiveIndicator } from '@/components/admin/LiveIndicator';
 import { RealtimeActivityFeed } from '@/components/admin/RealtimeActivityFeed';
+import { FetchHealthCard } from '@/components/admin/FetchHealthCard';
 import {
   ViewsChart,
   CategoryChart,
@@ -157,6 +158,9 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Fetch Health Card */}
+            <FetchHealthCard />
 
             {/* Three Column Layout */}
             <div className="grid gap-6 lg:grid-cols-3">

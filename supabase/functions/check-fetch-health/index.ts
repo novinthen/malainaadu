@@ -183,6 +183,10 @@ serve(async (req: Request): Promise<Response> => {
       ? `${new Date(latestFetch.completed_at || latestFetch.started_at).toLocaleString("ms-MY")} (${latestFetch.status})`
       : "Tiada rekod";
 
+    // Get admin dashboard URL
+    const projectUrl = "https://malainaadu.lovable.app";
+    const adminDashboardUrl = `${projectUrl}/admin`;
+
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #dc2626;">⚠️ Amaran Sistem MalaiNaadu</h1>
@@ -200,8 +204,14 @@ serve(async (req: Request): Promise<Response> => {
           <li><strong>Masa amaran:</strong> ${now.toLocaleString("ms-MY")}</li>
         </ul>
         
+        <div style="margin-top: 24px;">
+          <a href="${adminDashboardUrl}" style="display: inline-block; background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            Buka Panel Admin
+          </a>
+        </div>
+        
         <p style="margin-top: 24px; color: #6b7280; font-size: 14px;">
-          Sila periksa sistem segera di panel admin.
+          Gunakan butang "Cetuskan Pengambilan Manual" di panel admin untuk mencuba semula pengambilan berita.
         </p>
         
         <hr style="margin-top: 32px; border: none; border-top: 1px solid #e5e7eb;">
