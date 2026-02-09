@@ -212,7 +212,7 @@ async function processWithRetry(
   description: string,
   categories: Category[],
   geminiApiKey: string,
-  maxRetries = 3
+  maxRetries = 2
 ): Promise<{ newTitle: string; content: string; excerpt: string; categorySlug: string }> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -231,7 +231,7 @@ async function processWithRetry(
         };
       }
       
-      // Exponential backoff: 1s, 2s, 4s
+      // Exponential backoff: 1s, 2s
       const delay = Math.pow(2, attempt - 1) * 1000;
       console.log(`Retry ${attempt}/${maxRetries} after ${delay}ms`);
       await new Promise(r => setTimeout(r, delay));
@@ -436,13 +436,21 @@ serve(async (req) => {
     let totalProcessed = 0;
     let totalSkipped = 0;
     const errors: string[] = [];
+    const MAX_ARTICLES_PER_RUN = 5;
+    const TIME_LIMIT_MS = 50000; // 50 seconds - stop before timeout
+    let hitTimeLimit = false;
 
-    // Process each source
+    // Collect all new RSS items from all sources first
+    interface PendingArticle {
+      item: RSSItem;
+      source: Source;
+    }
+    const pendingArticles: PendingArticle[] = [];
+
     for (const source of sources as Source[]) {
       console.log(`Fetching RSS from: ${source.name} (${source.rss_url})`);
 
       try {
-        // Fetch RSS feed with 10 second timeout
         const rssResponse = await fetchWithTimeout(
           source.rss_url,
           {
@@ -451,7 +459,7 @@ serve(async (req) => {
               "Accept": "application/rss+xml, application/xml, text/xml",
             },
           },
-          10000 // 10 second timeout
+          10000
         );
 
         if (!rssResponse.ok) {
@@ -463,110 +471,128 @@ serve(async (req) => {
 
         const rssXml = await rssResponse.text();
         const items = parseRSS(rssXml);
-
         console.log(`Found ${items.length} items from ${source.name}`);
 
-        // Process each item - limit to 5 items per source to prevent timeouts
-        for (const item of items.slice(0, 5)) {
-          // Check if article already exists (by original URL)
-          const { data: existing } = await supabase
-            .from("articles")
-            .select("id")
-            .eq("original_url", item.link)
-            .single();
-
-          if (existing) {
-            totalSkipped++;
-            continue;
-          }
-
-          // Process with Gemini AI (with retry logic)
-          console.log(`Processing article: ${item.title.substring(0, 50)}...`);
-          
-          const processed = await processWithRetry(
-            item.title,
-            item.description,
-            categories as Category[],
-            geminiApiKey
-          );
-
-          // Find category ID
-          const category = (categories as Category[]).find(
-            (c) => c.slug === processed.categorySlug
-          );
-
-          // Parse publish date
-          let publishDate: string | null = null;
-          if (item.pubDate) {
-            try {
-              publishDate = new Date(item.pubDate).toISOString();
-            } catch {
-              publishDate = new Date().toISOString();
-            }
-          }
-
-          // Insert article and get the inserted data
-          const { data: insertedArticle, error: insertError } = await supabase
-            .from("articles")
-            .insert({
-              title: processed.newTitle,
-              original_title: item.title,
-              content: processed.content,
-              original_content: item.description,
-              excerpt: processed.excerpt,
-              image_url: item.imageUrl,
-              source_id: source.id,
-              original_url: item.link,
-              category_id: category?.id || null,
-              status: "published",
-              publish_date: publishDate,
-              view_count: 0,
-              // is_featured is handled by database trigger auto_feature_latest_article
-              is_breaking: false,
-            })
-            .select("id, slug")
-            .single();
-
-          if (insertError) {
-            console.error(`Insert error for ${item.title}:`, insertError);
-            errors.push(`Insert failed: ${item.title.substring(0, 30)}...`);
-          } else {
-            totalProcessed++;
-            console.log(`Successfully inserted: ${item.title.substring(0, 40)}...`);
-
-            // Trigger Facebook posting via dedicated function
-            if (insertedArticle) {
-              try {
-                const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-                const response = await fetch(
-                  `${supabaseUrl}/functions/v1/post-to-facebook`,
-                  {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ article_id: insertedArticle.id }),
-                  }
-                );
-                
-                if (response.ok) {
-                  console.log(`Facebook post triggered for: ${insertedArticle.id}`);
-                } else {
-                  console.log(`Facebook post failed (will retry later): ${response.status}`);
-                }
-              } catch (fbError) {
-                console.error("Facebook post trigger failed:", fbError);
-                // Don't block - article is saved, FB post can be retried from admin
-              }
-            }
-          }
-
-          // Delay between articles to avoid rate limiting (1 second)
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+        for (const item of items) {
+          pendingArticles.push({ item, source });
         }
       } catch (sourceError) {
-        const errorMsg = `Error processing source ${source.name}: ${sourceError instanceof Error ? sourceError.message : sourceError}`;
+        const errorMsg = `Error fetching source ${source.name}: ${sourceError instanceof Error ? sourceError.message : sourceError}`;
         console.error(errorMsg);
         errors.push(errorMsg);
       }
+    }
+
+    console.log(`Total RSS items collected: ${pendingArticles.length}`);
+
+    // Process only up to MAX_ARTICLES_PER_RUN new articles
+    for (const { item, source } of pendingArticles) {
+      // Time guard
+      if (Date.now() - startTime > TIME_LIMIT_MS) {
+        console.log(`Time limit reached (${TIME_LIMIT_MS}ms), stopping processing`);
+        hitTimeLimit = true;
+        break;
+      }
+
+      // Batch limit
+      if (totalProcessed >= MAX_ARTICLES_PER_RUN) {
+        console.log(`Batch limit reached (${MAX_ARTICLES_PER_RUN} articles), stopping`);
+        break;
+      }
+
+      // Check if article already exists
+      const { data: existing } = await supabase
+        .from("articles")
+        .select("id")
+        .eq("original_url", item.link)
+        .single();
+
+      if (existing) {
+        totalSkipped++;
+        continue;
+      }
+
+      // Process with Gemini AI (with retry logic)
+      console.log(`Processing article: ${item.title.substring(0, 50)}...`);
+      
+      const processed = await processWithRetry(
+        item.title,
+        item.description,
+        categories as Category[],
+        geminiApiKey
+      );
+
+      // Find category ID
+      const category = (categories as Category[]).find(
+        (c) => c.slug === processed.categorySlug
+      );
+
+      // Parse publish date - always set a value
+      let publishDate: string;
+      if (item.pubDate) {
+        try {
+          publishDate = new Date(item.pubDate).toISOString();
+        } catch {
+          publishDate = new Date().toISOString();
+        }
+      } else {
+        publishDate = new Date().toISOString();
+      }
+
+      // Insert article
+      const { data: insertedArticle, error: insertError } = await supabase
+        .from("articles")
+        .insert({
+          title: processed.newTitle,
+          original_title: item.title,
+          content: processed.content,
+          original_content: item.description,
+          excerpt: processed.excerpt,
+          image_url: item.imageUrl,
+          source_id: source.id,
+          original_url: item.link,
+          category_id: category?.id || null,
+          status: "published",
+          publish_date: publishDate,
+          view_count: 0,
+          is_breaking: false,
+        })
+        .select("id, slug")
+        .single();
+
+      if (insertError) {
+        console.error(`Insert error for ${item.title}:`, insertError);
+        errors.push(`Insert failed: ${item.title.substring(0, 30)}...`);
+      } else {
+        totalProcessed++;
+        console.log(`Successfully inserted: ${item.title.substring(0, 40)}...`);
+
+        // Trigger Facebook posting via dedicated function
+        if (insertedArticle) {
+          try {
+            const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+            const response = await fetch(
+              `${supabaseUrl}/functions/v1/post-to-facebook`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ article_id: insertedArticle.id }),
+              }
+            );
+            
+            if (response.ok) {
+              console.log(`Facebook post triggered for: ${insertedArticle.id}`);
+            } else {
+              console.log(`Facebook post failed (will retry later): ${response.status}`);
+            }
+          } catch (fbError) {
+            console.error("Facebook post trigger failed:", fbError);
+          }
+        }
+      }
+
+      // Delay between articles to avoid rate limiting (1.5 seconds)
+      await new Promise((resolve) => setTimeout(resolve, 1500));
     }
 
     const duration = Date.now() - startTime;
@@ -593,6 +619,8 @@ serve(async (req) => {
         processed: totalProcessed,
         skipped: totalSkipped,
         duration_ms: duration,
+        hit_time_limit: hitTimeLimit,
+        batch_limit: MAX_ARTICLES_PER_RUN,
         errors: errors.length > 0 ? errors : undefined,
       }),
       {
