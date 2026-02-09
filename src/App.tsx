@@ -20,6 +20,7 @@ import AboutPage from "./pages/AboutPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
 import NotFound from "./pages/NotFound";
+import SelangorPage from "./pages/SelangorPage";
 
 // Admin pages - lazy loaded for code splitting
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
@@ -79,6 +80,7 @@ const App = () => (
               <Route path="/tentang" element={<AboutPage />} />
               <Route path="/privasi" element={<PrivacyPage />} />
               <Route path="/terma" element={<TermsPage />} />
+              <Route path="/selangor" element={<SelangorPage />} />
               
               {/* Legacy redirect: /article/:slug -> /berita/:slug */}
               <Route path="/article/:slug" element={<ArticleRedirect />} />
