@@ -132,10 +132,10 @@ export default function SelangorPage() {
         >
           <button
             onClick={() => setZoomedPage(null)}
-            className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
+            className="absolute top-4 right-4 z-50 p-3 rounded-full bg-black text-white hover:bg-black/80 transition-colors shadow-lg"
             aria-label="Close zoom"
           >
-            <X className="w-6 h-6" />
+            <X className="w-8 h-8" strokeWidth={3} />
           </button>
 
           {/* Navigation in zoom mode */}
