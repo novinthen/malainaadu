@@ -1,72 +1,60 @@
 
 
-## Plan: Fix RSS Fetch Failures (Root Cause: Gemini Timeouts)
+## Selangor Flipbook Page
 
-### Problem Summary
+Create a new `/selangor` page that displays the uploaded 15-page PDF newsletter as an interactive, mobile-friendly flipbook with Selangor flag colors.
 
-| Issue | Detail |
-|-------|--------|
-| Last fetch | Feb 3, 2026 (6 days ago) |
-| Function status | Timing out on manual trigger |
-| Cron status | Not executing (likely disabled after repeated timeouts) |
-| Root cause | Gemini API rate limits (429) cause retries, which push execution past Edge Function timeout |
-| Data issue | All recent articles have `publish_date = NULL` |
+### Approach
 
-### Root Cause Chain
+Since we can't run a PDF-to-flipbook library that depends on `pdfjs-dist` and canvas rendering reliably in this environment, the most robust approach is to **convert the PDF pages into images** and use a lightweight page-flip library to create the book effect.
 
-```text
-Gemini 429 Rate Limit
-  --> Retry logic adds 1s + 2s + 4s delays per article
-  --> 25 articles x (processing + retries + 1s delay) = exceeds timeout
-  --> Edge Function killed (context canceled)
-  --> Cron scheduler sees failure, stops retrying
-```
+We will:
+1. Copy each of the 15 full-page screenshots (already extracted from the PDF) into the project
+2. Use the `react-pageflip` library for the book-turning animation (lightweight, mobile-friendly, supports touch/swipe)
+3. Build a themed page with Selangor flag colors
 
-### Solution: Process in Small Batches
+### Color Theme
 
-Instead of processing all articles in one function call, limit each run to a small batch (5 articles max). This keeps execution time well within limits.
+| Color | HEX | Usage |
+|-------|-----|-------|
+| Red | #DA251D | Header bar, accents, navigation buttons |
+| White | #FFFFFF | Page background, text on red |
+| Yellow | #FCD116 | Highlights, page counter, decorative borders |
 
----
+### Files to Create/Modify
 
-### Phase 1: Batch Processing in fetch-rss
+**1. Copy 15 page images to `public/selangor/`**
+- `page_1.jpg` through `page_15.jpg` from the parsed PDF screenshots
 
-**File: `supabase/functions/fetch-rss/index.ts`**
+**2. Install dependency**
+- `react-pageflip` - lightweight flipbook component with touch support
 
-1. **Limit articles per run to 5** - After collecting RSS items from all sources, only process the first 5 unprocessed articles per execution
-2. **Reduce retry attempts from 3 to 2** - Less retry overhead per run
-3. **Add total execution time guard** - If approaching 50 seconds, stop processing and return partial results
-4. **Graceful fallback** - If Gemini fails after retries, insert article with original content (no AI rewrite) rather than skipping entirely
+**3. New file: `src/pages/SelangorPage.tsx`**
+- Full-screen flipbook viewer themed with Selangor colors
+- Header with Selangor branding and red background
+- Flipbook component showing all 15 pages as images
+- Navigation controls: Previous / Next buttons + page indicator
+- Touch/swipe support for mobile (built into react-pageflip)
+- Responsive sizing: fills viewport width on mobile, constrained max-width on desktop
+- Fullscreen toggle button
 
-### Phase 2: Fix publish_date NULL Issue
+**4. Modify: `src/App.tsx`**
+- Add route: `<Route path="/selangor" element={<SelangorPage />} />`
 
-**Database migration:**
+### Mobile-First Design
 
-Update all published articles that have `publish_date = NULL` to use their `created_at` timestamp instead. Also ensure the insert logic in `fetch-rss` always sets `publish_date`.
+- Pages scale to fill the screen width on mobile (single-page mode)
+- On desktop, shows two-page spread (book mode)
+- Swipe left/right to turn pages on touch devices
+- Large, easy-to-tap navigation buttons at the bottom
+- Page counter shows current position (e.g., "3 / 15")
+- Pinch-to-zoom not included in react-pageflip, but pages are rendered at high resolution for readability
 
-**SQL:**
-```sql
-UPDATE articles 
-SET publish_date = created_at 
-WHERE publish_date IS NULL AND status = 'published';
-```
+### Technical Details
 
-### Phase 3: Redeploy to Reset Cron
-
-Redeploying the edge function will re-register the cron schedule, which should restart the 15-minute cycle.
-
----
-
-### Files to Modify
-
-| File | Changes |
-|------|---------|
-| `supabase/functions/fetch-rss/index.ts` | Add batch limit (5 articles), execution time guard, always set publish_date |
-| Database migration | Fix existing NULL publish_date values |
-
-### Expected Outcome
-
-- Each cron run processes max 5 articles in ~25 seconds (well within timeout)
-- Over 3 cron runs (45 minutes), all 15+ new articles get processed
-- No more timeouts, cron stays active
-- All articles get proper publish_date values
+- `react-pageflip` uses `StPageFlip` engine internally with CSS 3D transforms for realistic page turns
+- Images are served from `public/selangor/` for fast loading
+- The component uses `useRef` to control the flipbook instance programmatically
+- Single-page mode on screens under 768px, double-page mode on larger screens
+- The page does NOT use MainLayout (no site header/footer) to maximize reading space, but includes a back-to-home link
 
