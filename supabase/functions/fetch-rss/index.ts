@@ -437,8 +437,29 @@ serve(async (req) => {
     let totalSkipped = 0;
     const errors: string[] = [];
     const MAX_ARTICLES_PER_RUN = 5;
+    const MAX_ARTICLES_PER_DAY = 10;
     const TIME_LIMIT_MS = 50000; // 50 seconds - stop before timeout
     let hitTimeLimit = false;
+    let hitDailyLimit = false;
+
+    // Check how many articles were already published today
+    const todayStart = new Date();
+    todayStart.setUTCHours(0, 0, 0, 0);
+    const { count: publishedToday } = await supabase
+      .from("articles")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "published")
+      .gte("created_at", todayStart.toISOString());
+
+    const remainingToday = Math.max(0, MAX_ARTICLES_PER_DAY - (publishedToday || 0));
+    console.log(`Articles published today: ${publishedToday || 0}, remaining quota: ${remainingToday}`);
+
+    if (remainingToday === 0) {
+      console.log("Daily publish limit reached, skipping processing");
+      hitDailyLimit = true;
+    }
+
+    const effectiveBatchLimit = Math.min(MAX_ARTICLES_PER_RUN, remainingToday);
 
     // Collect all new RSS items from all sources first
     interface PendingArticle {
@@ -447,45 +468,47 @@ serve(async (req) => {
     }
     const pendingArticles: PendingArticle[] = [];
 
-    for (const source of sources as Source[]) {
-      console.log(`Fetching RSS from: ${source.name} (${source.rss_url})`);
+    if (!hitDailyLimit) {
+      for (const source of sources as Source[]) {
+        console.log(`Fetching RSS from: ${source.name} (${source.rss_url})`);
 
-      try {
-        const rssResponse = await fetchWithTimeout(
-          source.rss_url,
-          {
-            headers: {
-              "User-Agent": "BeritaMalaysia/1.0",
-              "Accept": "application/rss+xml, application/xml, text/xml",
+        try {
+          const rssResponse = await fetchWithTimeout(
+            source.rss_url,
+            {
+              headers: {
+                "User-Agent": "BeritaMalaysia/1.0",
+                "Accept": "application/rss+xml, application/xml, text/xml",
+              },
             },
-          },
-          10000
-        );
+            10000
+          );
 
-        if (!rssResponse.ok) {
-          const errorMsg = `Failed to fetch ${source.name}: ${rssResponse.status}`;
+          if (!rssResponse.ok) {
+            const errorMsg = `Failed to fetch ${source.name}: ${rssResponse.status}`;
+            console.error(errorMsg);
+            errors.push(errorMsg);
+            continue;
+          }
+
+          const rssXml = await rssResponse.text();
+          const items = parseRSS(rssXml);
+          console.log(`Found ${items.length} items from ${source.name}`);
+
+          for (const item of items) {
+            pendingArticles.push({ item, source });
+          }
+        } catch (sourceError) {
+          const errorMsg = `Error fetching source ${source.name}: ${sourceError instanceof Error ? sourceError.message : sourceError}`;
           console.error(errorMsg);
           errors.push(errorMsg);
-          continue;
         }
-
-        const rssXml = await rssResponse.text();
-        const items = parseRSS(rssXml);
-        console.log(`Found ${items.length} items from ${source.name}`);
-
-        for (const item of items) {
-          pendingArticles.push({ item, source });
-        }
-      } catch (sourceError) {
-        const errorMsg = `Error fetching source ${source.name}: ${sourceError instanceof Error ? sourceError.message : sourceError}`;
-        console.error(errorMsg);
-        errors.push(errorMsg);
       }
+
+      console.log(`Total RSS items collected: ${pendingArticles.length}`);
     }
 
-    console.log(`Total RSS items collected: ${pendingArticles.length}`);
-
-    // Process only up to MAX_ARTICLES_PER_RUN new articles
+    // Process only up to effective batch limit
     for (const { item, source } of pendingArticles) {
       // Time guard
       if (Date.now() - startTime > TIME_LIMIT_MS) {
@@ -494,9 +517,9 @@ serve(async (req) => {
         break;
       }
 
-      // Batch limit
-      if (totalProcessed >= MAX_ARTICLES_PER_RUN) {
-        console.log(`Batch limit reached (${MAX_ARTICLES_PER_RUN} articles), stopping`);
+      // Batch limit (respects daily cap)
+      if (totalProcessed >= effectiveBatchLimit) {
+        console.log(`Batch limit reached (${effectiveBatchLimit} articles), stopping`);
         break;
       }
 
@@ -615,12 +638,14 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        message: "RSS fetch completed",
+        message: hitDailyLimit ? "Daily publish limit reached" : "RSS fetch completed",
         processed: totalProcessed,
         skipped: totalSkipped,
         duration_ms: duration,
         hit_time_limit: hitTimeLimit,
-        batch_limit: MAX_ARTICLES_PER_RUN,
+        hit_daily_limit: hitDailyLimit,
+        published_today: publishedToday || 0,
+        daily_limit: MAX_ARTICLES_PER_DAY,
         errors: errors.length > 0 ? errors : undefined,
       }),
       {
