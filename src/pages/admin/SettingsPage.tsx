@@ -228,10 +228,10 @@ export default function SettingsPage() {
               மலாய் தலைப்புகளை தமிழுக்கு மாற்று
             </CardTitle>
             <CardDescription>
-              மொழிபெயர்ப்பு தோல்வியடைந்து மலாய் தலைப்புடன் வெளியிடப்பட்ட கட்டுரைகளை மீண்டும் செயலாக்கவும். ஒரே நேரத்தில் 10 கட்டுரைகள் வரை செயலாக்கப்படும்.
+              மொழிபெயர்ப்பு தோல்வியடைந்து மலாய் தலைப்புடன் வெளியிடப்பட்ட கட்டுரைகளை மீண்டும் செயலாக்கவும். ஒரே ஓட்டத்தில் அனைத்தும் {BATCH_SIZE}-ன் batches-ஆக தானாக செயலாக்கப்படும்.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <Button
               onClick={handleReprocessMalayLeak}
               disabled={isReprocessing}
@@ -249,6 +249,61 @@ export default function SettingsPage() {
                 </>
               )}
             </Button>
+
+            {isReprocessing && (
+              <div className="space-y-2 rounded-md border border-border bg-muted/40 p-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{statusMessage || 'செயலாக்கம்...'}</span>
+                  <span className="font-medium">Batch {batchesRun}/{MAX_BATCHES}</span>
+                </div>
+                <Progress value={(batchesRun / MAX_BATCHES) * 100} />
+                <div className="flex gap-4 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                    சரிசெய்யப்பட்டது: <strong className="text-foreground">{fixedCount}</strong>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <XCircle className="h-3.5 w-3.5 text-destructive" />
+                    தோல்வி: <strong className="text-foreground">{failedCount}</strong>
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {summary && !isReprocessing && (
+              <div className="space-y-2 rounded-md border border-border bg-muted/40 p-3">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                  செயலாக்கம் முடிந்தது
+                </div>
+                <div className="grid grid-cols-3 gap-3 text-sm">
+                  <div>
+                    <div className="text-xs text-muted-foreground">Batches</div>
+                    <div className="font-semibold">{summary.batches}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">சரிசெய்யப்பட்டது</div>
+                    <div className="font-semibold text-primary">{summary.fixed}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">தோல்வி</div>
+                    <div className="font-semibold text-destructive">{summary.failed}</div>
+                  </div>
+                </div>
+                {summary.errors.length > 0 && (
+                  <details className="text-xs">
+                    <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                      பிழைகள் ({summary.errors.length})
+                    </summary>
+                    <ul className="mt-2 list-disc space-y-1 pl-4 text-destructive">
+                      {summary.errors.slice(0, 10).map((e, idx) => (
+                        <li key={idx}>{e}</li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
