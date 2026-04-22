@@ -45,9 +45,6 @@ export default function SettingsPage() {
           <h1 className="font-display text-2xl font-bold md:text-3xl">Tetapan</h1>
           <p className="text-muted-foreground">Konfigurasi sistem Berita Malaysia</p>
         </div>
-          <h1 className="font-display text-2xl font-bold md:text-3xl">Tetapan</h1>
-          <p className="text-muted-foreground">Konfigurasi sistem Berita Malaysia</p>
-        </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           {/* Auto Fetch Status */}
