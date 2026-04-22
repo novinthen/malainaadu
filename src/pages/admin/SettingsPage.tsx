@@ -8,10 +8,43 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
+  const [isReprocessing, setIsReprocessing] = useState(false);
+
+  const handleReprocessMalayLeak = async () => {
+    setIsReprocessing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('reprocess-articles', {
+        body: { mode: 'malay-leak', limit: 10 },
+      });
+
+      if (error) throw error;
+
+      const processed = data?.processed ?? 0;
+      const total = data?.total ?? 0;
+      if (total === 0) {
+        toast.success('மலாய் தலைப்புள்ள கட்டுரைகள் எதுவும் இல்லை.');
+      } else {
+        toast.success(`${processed}/${total} கட்டுரைகள் தமிழில் மறுபடி மொழிபெயர்க்கப்பட்டன.`);
+      }
+      if (data?.errors?.length) {
+        console.warn('Reprocess errors:', data.errors);
+      }
+    } catch (err) {
+      console.error('Reprocess failed:', err);
+      const message = err instanceof Error ? err.message : 'Reprocess failed';
+      toast.error(`மறுபதிவாக்கம் தோல்வியடைந்தது: ${message}`);
+    } finally {
+      setIsReprocessing(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div>
+          <h1 className="font-display text-2xl font-bold md:text-3xl">Tetapan</h1>
+          <p className="text-muted-foreground">Konfigurasi sistem Berita Malaysia</p>
+        </div>
           <h1 className="font-display text-2xl font-bold md:text-3xl">Tetapan</h1>
           <p className="text-muted-foreground">Konfigurasi sistem Berita Malaysia</p>
         </div>
