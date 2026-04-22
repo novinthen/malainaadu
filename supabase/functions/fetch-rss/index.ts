@@ -417,11 +417,11 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
+    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
-    if (!geminiApiKey) {
-      console.error("GEMINI_API_KEY is not configured");
-      throw new Error("GEMINI_API_KEY is not configured");
+    if (!lovableApiKey) {
+      console.error("LOVABLE_API_KEY is not configured");
+      throw new Error("LOVABLE_API_KEY is not configured");
     }
 
     console.log("Environment variables loaded successfully");
