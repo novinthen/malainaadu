@@ -569,7 +569,7 @@ serve(async (req) => {
         item.title,
         item.description,
         categories as Category[],
-        geminiApiKey
+        lovableApiKey
       );
 
       // Find category ID
@@ -589,6 +589,12 @@ serve(async (req) => {
         publishDate = new Date().toISOString();
       }
 
+      // If translation failed Tamil validation, hold the article for admin review
+      const articleStatus = processed.translationOk ? "published" : "pending";
+      if (!processed.translationOk) {
+        console.warn(`Article flagged as PENDING (translation failed): ${item.title.substring(0, 50)}`);
+      }
+
       // Insert article
       const { data: insertedArticle, error: insertError } = await supabase
         .from("articles")
@@ -602,12 +608,12 @@ serve(async (req) => {
           source_id: source.id,
           original_url: item.link,
           category_id: category?.id || null,
-          status: "published",
+          status: articleStatus,
           publish_date: publishDate,
           view_count: 0,
           is_breaking: false,
         })
-        .select("id, slug")
+        .select("id, slug, status")
         .single();
 
       if (insertError) {
