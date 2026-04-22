@@ -3,35 +3,103 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, Rss, Cpu, Database, Languages, Loader2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Clock, Rss, Cpu, Database, Languages, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+const BATCH_SIZE = 10;
+const MAX_BATCHES = 20; // safety cap (200 articles)
+
+interface ReprocessSummary {
+  batches: number;
+  fixed: number;
+  failed: number;
+  errors: string[];
+}
+
 export default function SettingsPage() {
   const [isReprocessing, setIsReprocessing] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string>('');
+  const [batchesRun, setBatchesRun] = useState(0);
+  const [fixedCount, setFixedCount] = useState(0);
+  const [failedCount, setFailedCount] = useState(0);
+  const [summary, setSummary] = useState<ReprocessSummary | null>(null);
 
   const handleReprocessMalayLeak = async () => {
     setIsReprocessing(true);
+    setSummary(null);
+    setBatchesRun(0);
+    setFixedCount(0);
+    setFailedCount(0);
+    setStatusMessage('தொடங்குகிறது...');
+
+    let totalFixed = 0;
+    let totalFailed = 0;
+    let batches = 0;
+    const allErrors: string[] = [];
+
     try {
-      const { data, error } = await supabase.functions.invoke('reprocess-articles', {
-        body: { mode: 'malay-leak', limit: 10 },
-      });
+      for (let i = 0; i < MAX_BATCHES; i++) {
+        batches = i + 1;
+        setStatusMessage(`Batch ${batches} செயலாக்கப்படுகிறது (${BATCH_SIZE} கட்டுரைகள்)...`);
 
-      if (error) throw error;
+        const { data, error } = await supabase.functions.invoke('reprocess-articles', {
+          body: { mode: 'malay-leak', limit: BATCH_SIZE },
+        });
 
-      const processed = data?.processed ?? 0;
-      const total = data?.total ?? 0;
-      if (total === 0) {
+        if (error) throw error;
+
+        const processed = data?.processed ?? 0;
+        const total = data?.total ?? 0;
+        const errors: string[] = data?.errors ?? [];
+
+        const failedInBatch = Math.max(0, total - processed);
+        totalFixed += processed;
+        totalFailed += failedInBatch;
+        if (errors.length) allErrors.push(...errors.map((e) => String(e)));
+
+        setBatchesRun(batches);
+        setFixedCount(totalFixed);
+        setFailedCount(totalFailed);
+
+        // Done when no more Malay-leaked articles remain
+        if (total === 0) {
+          batches = i; // this batch found nothing
+          break;
+        }
+
+        // Small delay to avoid hammering the AI gateway
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+
+      const finalSummary: ReprocessSummary = {
+        batches,
+        fixed: totalFixed,
+        failed: totalFailed,
+        errors: allErrors,
+      };
+      setSummary(finalSummary);
+      setStatusMessage('');
+
+      if (totalFixed === 0 && totalFailed === 0) {
         toast.success('மலாய் தலைப்புள்ள கட்டுரைகள் எதுவும் இல்லை.');
       } else {
-        toast.success(`${processed}/${total} கட்டுரைகள் தமிழில் மறுபடி மொழிபெயர்க்கப்பட்டன.`);
+        toast.success(
+          `முடிந்தது: ${totalFixed} சரிசெய்யப்பட்டது, ${totalFailed} தோல்வி (${batches} batches).`
+        );
       }
-      if (data?.errors?.length) {
-        console.warn('Reprocess errors:', data.errors);
-      }
+      if (allErrors.length) console.warn('Reprocess errors:', allErrors);
     } catch (err) {
       console.error('Reprocess failed:', err);
       const message = err instanceof Error ? err.message : 'Reprocess failed';
+      setStatusMessage('');
+      setSummary({
+        batches,
+        fixed: totalFixed,
+        failed: totalFailed,
+        errors: [...allErrors, message],
+      });
       toast.error(`மறுபதிவாக்கம் தோல்வியடைந்தது: ${message}`);
     } finally {
       setIsReprocessing(false);
