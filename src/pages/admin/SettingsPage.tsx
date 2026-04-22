@@ -152,6 +152,38 @@ export default function SettingsPage() {
           </Card>
         </div>
 
+        {/* Malay-leak backfill */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Languages className="h-5 w-5 text-primary" />
+              மலாய் தலைப்புகளை தமிழுக்கு மாற்று
+            </CardTitle>
+            <CardDescription>
+              மொழிபெயர்ப்பு தோல்வியடைந்து மலாய் தலைப்புடன் வெளியிடப்பட்ட கட்டுரைகளை மீண்டும் செயலாக்கவும். ஒரே நேரத்தில் 10 கட்டுரைகள் வரை செயலாக்கப்படும்.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={handleReprocessMalayLeak}
+              disabled={isReprocessing}
+              className="w-full sm:w-auto"
+            >
+              {isReprocessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  செயலாக்கப்படுகிறது...
+                </>
+              ) : (
+                <>
+                  <Languages className="mr-2 h-4 w-4" />
+                  மலாய் தலைப்புள்ள கட்டுரைகளை மறுபடி மொழிபெயர்
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Info */}
         <Card>
           <CardHeader>
