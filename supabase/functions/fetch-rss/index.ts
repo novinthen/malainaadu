@@ -623,8 +623,8 @@ serve(async (req) => {
         totalProcessed++;
         console.log(`Successfully inserted: ${item.title.substring(0, 40)}...`);
 
-        // Trigger Facebook posting via dedicated function
-        if (insertedArticle) {
+        // Trigger Facebook posting only for published (translated) articles
+        if (insertedArticle && insertedArticle.status === "published") {
           try {
             const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
             const response = await fetch(
@@ -635,7 +635,7 @@ serve(async (req) => {
                 body: JSON.stringify({ article_id: insertedArticle.id }),
               }
             );
-            
+
             if (response.ok) {
               console.log(`Facebook post triggered for: ${insertedArticle.id}`);
             } else {
