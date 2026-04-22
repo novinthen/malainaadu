@@ -1,60 +1,38 @@
 
 
-## Selangor Flipbook Page
+## Fix Malay Titles in Published Articles
 
-Create a new `/selangor` page that displays the uploaded 15-page PDF newsletter as an interactive, mobile-friendly flipbook with Selangor flag colors.
+### Why this happened
 
-### Approach
+When Gemini AI translation fails or returns an empty title, `fetch-rss` silently falls back to the **original Malay title** and still publishes the article. There is no Tamil-script validation, so 28 articles slipped through with Malay titles like *"Hidroponik kampung jadi sumber rezeki"* instead of being translated.
 
-Since we can't run a PDF-to-flipbook library that depends on `pdfjs-dist` and canvas rendering reliably in this environment, the most robust approach is to **convert the PDF pages into images** and use a lightweight page-flip library to create the book effect.
+Also, the `reprocess-articles` function is written in **Bahasa Malaysia** (not Tamil) and only touches content — it can't fix titles.
 
-We will:
-1. Copy each of the 15 full-page screenshots (already extracted from the PDF) into the project
-2. Use the `react-pageflip` library for the book-turning animation (lightweight, mobile-friendly, supports touch/swipe)
-3. Build a themed page with Selangor flag colors
+### What will be fixed
 
-### Color Theme
+**1. Harden `fetch-rss` so Malay titles never reach the site again**
+- After Gemini returns, validate that the new title contains Tamil characters (Unicode range `\u0B80-\u0BFF`).
+- If validation fails on all retries, insert the article with `status: 'pending'` (not `published`) so an admin can review it instead of it appearing on the homepage.
+- Upgrade model to `google/gemini-2.5-flash` via Lovable AI Gateway (already used elsewhere, no API key needed) and remove the direct Google API call. This is more reliable and matches the project's standard.
 
-| Color | HEX | Usage |
-|-------|-----|-------|
-| Red | #DA251D | Header bar, accents, navigation buttons |
-| White | #FFFFFF | Page background, text on red |
-| Yellow | #FCD116 | Highlights, page counter, decorative borders |
+**2. Rewrite `reprocess-articles` to also retranslate titles into Tamil**
+- Change the prompt from Bahasa Malaysia to Malaysian Tamil (matching `fetch-rss`).
+- Update the function to also retranslate `title` and `excerpt`, not just `content`.
+- Add an option to target articles where `title = original_title` (the Malay-leak signature) so we can backfill the 28 broken ones in batches.
+- Switch to Lovable AI Gateway as well.
 
-### Files to Create/Modify
+**3. Backfill the 28 existing Malay-titled articles**
+- After deploying the fixed `reprocess-articles`, trigger it from the admin Settings page in batches of 10 to retranslate titles, excerpts, and content into proper Tamil.
 
-**1. Copy 15 page images to `public/selangor/`**
-- `page_1.jpg` through `page_15.jpg` from the parsed PDF screenshots
+**4. Admin UI tweak**
+- On the admin Settings page (`SettingsPage.tsx`), add a "Reprocess Malay-leaked articles" button that calls the updated function with the new filter, so you can fix this yourself any time it recurs.
 
-**2. Install dependency**
-- `react-pageflip` - lightweight flipbook component with touch support
+### Files affected
 
-**3. New file: `src/pages/SelangorPage.tsx`**
-- Full-screen flipbook viewer themed with Selangor colors
-- Header with Selangor branding and red background
-- Flipbook component showing all 15 pages as images
-- Navigation controls: Previous / Next buttons + page indicator
-- Touch/swipe support for mobile (built into react-pageflip)
-- Responsive sizing: fills viewport width on mobile, constrained max-width on desktop
-- Fullscreen toggle button
+- `supabase/functions/fetch-rss/index.ts` — Tamil-script validation + Lovable AI Gateway + pending fallback
+- `supabase/functions/reprocess-articles/index.ts` — Tamil prompt + retranslate title/excerpt + Malay-leak filter
+- `src/pages/admin/SettingsPage.tsx` — new button to trigger Malay-title backfill
+- One-time invocation of `reprocess-articles` to clean up the existing 28 articles
 
-**4. Modify: `src/App.tsx`**
-- Add route: `<Route path="/selangor" element={<SelangorPage />} />`
-
-### Mobile-First Design
-
-- Pages scale to fill the screen width on mobile (single-page mode)
-- On desktop, shows two-page spread (book mode)
-- Swipe left/right to turn pages on touch devices
-- Large, easy-to-tap navigation buttons at the bottom
-- Page counter shows current position (e.g., "3 / 15")
-- Pinch-to-zoom not included in react-pageflip, but pages are rendered at high resolution for readability
-
-### Technical Details
-
-- `react-pageflip` uses `StPageFlip` engine internally with CSS 3D transforms for realistic page turns
-- Images are served from `public/selangor/` for fast loading
-- The component uses `useRef` to control the flipbook instance programmatically
-- Single-page mode on screens under 768px, double-page mode on larger screens
-- The page does NOT use MainLayout (no site header/footer) to maximize reading space, but includes a back-to-home link
+No database schema changes required.
 
