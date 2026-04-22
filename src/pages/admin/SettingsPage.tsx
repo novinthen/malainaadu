@@ -1,7 +1,11 @@
+import { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Rss, Cpu, Database } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, Rss, Cpu, Database, Languages, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
   return (
