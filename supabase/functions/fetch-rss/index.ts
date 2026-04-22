@@ -130,120 +130,147 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-// Use Google Gemini to rewrite article and categorize
+// Validate that text contains Tamil characters (Unicode range U+0B80 to U+0BFF)
+function hasTamilScript(text: string): boolean {
+  if (!text) return false;
+  const tamilChars = (text.match(/[\u0B80-\u0BFF]/g) || []).length;
+  // Require at least 3 Tamil characters to avoid false positives from punctuation
+  return tamilChars >= 3;
+}
+
+// Use Lovable AI Gateway (Gemini 2.5 Flash) to rewrite article and categorize
 async function processWithGemini(
   title: string,
   description: string,
   categories: Category[],
-  geminiApiKey: string
+  lovableApiKey: string
 ): Promise<{ newTitle: string; content: string; excerpt: string; categorySlug: string }> {
   const categoryList = categories.map(c => c.slug).join(', ');
-  
-  const prompt = `நீங்கள் ஒரு தொழில்முறை மலேசிய தமிழ் செய்தி ஆசிரியர். இந்த செய்தியை மலேசிய தமிழில் மறுபடி எழுதுங்கள்.
+
+  const systemPrompt = `நீங்கள் ஒரு தொழில்முறை மலேசிய தமிழ் செய்தி ஆசிரியர். எல்லா பதில்களையும் மலேசிய தமிழில் (Malaysian Tamil) மட்டுமே எழுதவும். மலாய் (Bahasa Malaysia) அல்லது ஆங்கிலத்தில் எழுத வேண்டாம். JSON வடிவில் மட்டுமே பதிலளிக்கவும்.`;
+
+  const userPrompt = `Translate and rewrite this Malay/English news article into Malaysian Tamil.
 
 ORIGINAL TITLE: ${title}
 
 ORIGINAL CONTENT: ${description}
 
 INSTRUCTIONS:
-1. Write an engaging, SEO-friendly title in Malaysian Tamil (maximum 80 characters)
-2. Rewrite the content in 200-300 words in professional, neutral Malaysian Tamil. IMPORTANT: Split content into 3-4 paragraphs using \\n\\n between paragraphs.
-3. Create a brief excerpt/summary in 1-2 sentences (maximum 160 characters) in Tamil
-4. Choose the most appropriate category from this list: ${categoryList}
+1. Write an engaging, SEO-friendly title in Malaysian Tamil (max 80 characters). The title MUST be in Tamil script (தமிழ்).
+2. Rewrite the content in 200-300 words in professional, neutral Malaysian Tamil. Split into 3-4 paragraphs separated by \\n\\n.
+3. Create a brief excerpt in 1-2 Tamil sentences (max 160 characters).
+4. Choose the most appropriate category slug from: ${categoryList}
 
-IMPORTANT: 
-- Write in third-person neutral perspective. Focus on facts.
-- Use Malaysian Tamil (மலேசிய தமிழ்) - use local Malaysian terms where appropriate
-- Do NOT use Indian Tamil spellings/terms - adapt to Malaysian context
-- Keep proper nouns (names, places) as they are
+CRITICAL:
+- Title, content, and excerpt MUST be in Tamil script (Unicode U+0B80–U+0BFF). Do NOT return Malay or English text.
+- Third-person neutral perspective. Focus on facts.
+- Use Malaysian Tamil terms; avoid Indian Tamil spellings.
+- Keep proper nouns (names, places) as-is.
 
-Reply in JSON format only:
+Reply with JSON only:
 {
-  "title": "தமிழ் தலைப்பு இங்கே",
+  "title": "தமிழ் தலைப்பு",
   "content": "முதல் பத்தி...\\n\\nஇரண்டாவது பத்தி...\\n\\nமூன்றாவது பத்தி...",
-  "excerpt": "சுருக்கமான தமிழ் சுருக்கம்...",
+  "excerpt": "சுருக்கமான தமிழ் சுருக்கம்.",
   "category": "category_slug"
 }`;
 
   const response = await fetchWithTimeout(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
+    "https://ai.gateway.lovable.dev/v1/chat/completions",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        Authorization: `Bearer ${lovableApiKey}`,
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1024,
-        },
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        response_format: { type: "json_object" },
       }),
     },
-    20000 // 20 second timeout for AI processing
+    25000
   );
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("Gemini API error:", response.status, errorText);
-    throw new Error(`Gemini API error: ${response.status}`);
+    console.error("Lovable AI Gateway error:", response.status, errorText);
+    if (response.status === 429) throw new Error("AI rate limit exceeded");
+    if (response.status === 402) throw new Error("AI credits exhausted");
+    throw new Error(`Lovable AI error: ${response.status}`);
   }
 
   const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  
-  // Extract JSON from response (handle markdown code blocks)
+  const text = data.choices?.[0]?.message?.content || "";
+
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
-    throw new Error("No JSON found in Gemini response");
+    throw new Error("No JSON found in AI response");
   }
-  
+
   const result = JSON.parse(jsonMatch[0]);
-  
+
+  const newTitle = (result.title || "").trim();
+  const newContent = (result.content || "").trim();
+  const newExcerpt = (result.excerpt || "").trim();
+
+  // Validate Tamil script in title — this is the key guard against Malay leaks
+  if (!hasTamilScript(newTitle)) {
+    throw new Error(`Translation produced non-Tamil title: "${newTitle.substring(0, 50)}"`);
+  }
+
   return {
-    newTitle: result.title || title,
-    content: result.content || description,
-    excerpt: result.excerpt || description.substring(0, 160),
+    newTitle,
+    content: newContent || description,
+    excerpt: newExcerpt || newContent.substring(0, 160),
     categorySlug: result.category || "nasional",
   };
 }
 
 // Wrapper with exponential backoff retry logic
+// Returns translation result + a flag indicating whether translation succeeded with valid Tamil
 async function processWithRetry(
   title: string,
   description: string,
   categories: Category[],
-  geminiApiKey: string,
-  maxRetries = 2
-): Promise<{ newTitle: string; content: string; excerpt: string; categorySlug: string }> {
+  lovableApiKey: string,
+  maxRetries = 3
+): Promise<{ newTitle: string; content: string; excerpt: string; categorySlug: string; translationOk: boolean }> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      return await processWithGemini(title, description, categories, geminiApiKey);
+      const result = await processWithGemini(title, description, categories, lovableApiKey);
+      return { ...result, translationOk: true };
     } catch (error) {
-      console.error(`AI processing attempt ${attempt} failed:`, error);
-      
+      console.error(`AI processing attempt ${attempt}/${maxRetries} failed:`, error instanceof Error ? error.message : error);
+
       if (attempt === maxRetries) {
-        // Fallback: return original content
-        console.log("Max retries exceeded, using fallback content");
+        // Fallback: keep original content but flag for admin review
+        console.log("Max retries exceeded — flagging article for admin review");
         return {
           newTitle: title,
           content: description,
           excerpt: description.substring(0, 160),
           categorySlug: "nasional",
+          translationOk: false,
         };
       }
-      
-      // Exponential backoff: 1s, 2s
+
+      // Exponential backoff: 1s, 2s, 4s
       const delay = Math.pow(2, attempt - 1) * 1000;
       console.log(`Retry ${attempt}/${maxRetries} after ${delay}ms`);
       await new Promise(r => setTimeout(r, delay));
     }
   }
-  
-  // Should never reach here but TypeScript requires it
+
   return {
     newTitle: title,
     content: description,
     excerpt: description.substring(0, 160),
     categorySlug: "nasional",
+    translationOk: false,
   };
 }
 
@@ -390,11 +417,11 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
+    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
-    if (!geminiApiKey) {
-      console.error("GEMINI_API_KEY is not configured");
-      throw new Error("GEMINI_API_KEY is not configured");
+    if (!lovableApiKey) {
+      console.error("LOVABLE_API_KEY is not configured");
+      throw new Error("LOVABLE_API_KEY is not configured");
     }
 
     console.log("Environment variables loaded successfully");
@@ -542,7 +569,7 @@ serve(async (req) => {
         item.title,
         item.description,
         categories as Category[],
-        geminiApiKey
+        lovableApiKey
       );
 
       // Find category ID
@@ -562,6 +589,12 @@ serve(async (req) => {
         publishDate = new Date().toISOString();
       }
 
+      // If translation failed Tamil validation, hold the article for admin review
+      const articleStatus = processed.translationOk ? "published" : "pending";
+      if (!processed.translationOk) {
+        console.warn(`Article flagged as PENDING (translation failed): ${item.title.substring(0, 50)}`);
+      }
+
       // Insert article
       const { data: insertedArticle, error: insertError } = await supabase
         .from("articles")
@@ -575,12 +608,12 @@ serve(async (req) => {
           source_id: source.id,
           original_url: item.link,
           category_id: category?.id || null,
-          status: "published",
+          status: articleStatus,
           publish_date: publishDate,
           view_count: 0,
           is_breaking: false,
         })
-        .select("id, slug")
+        .select("id, slug, status")
         .single();
 
       if (insertError) {
@@ -590,8 +623,8 @@ serve(async (req) => {
         totalProcessed++;
         console.log(`Successfully inserted: ${item.title.substring(0, 40)}...`);
 
-        // Trigger Facebook posting via dedicated function
-        if (insertedArticle) {
+        // Trigger Facebook posting only for published (translated) articles
+        if (insertedArticle && insertedArticle.status === "published") {
           try {
             const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
             const response = await fetch(
@@ -602,7 +635,7 @@ serve(async (req) => {
                 body: JSON.stringify({ article_id: insertedArticle.id }),
               }
             );
-            
+
             if (response.ok) {
               console.log(`Facebook post triggered for: ${insertedArticle.id}`);
             } else {

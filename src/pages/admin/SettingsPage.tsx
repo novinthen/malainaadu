@@ -1,9 +1,43 @@
+import { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Rss, Cpu, Database } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, Rss, Cpu, Database, Languages, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
+  const [isReprocessing, setIsReprocessing] = useState(false);
+
+  const handleReprocessMalayLeak = async () => {
+    setIsReprocessing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('reprocess-articles', {
+        body: { mode: 'malay-leak', limit: 10 },
+      });
+
+      if (error) throw error;
+
+      const processed = data?.processed ?? 0;
+      const total = data?.total ?? 0;
+      if (total === 0) {
+        toast.success('மலாய் தலைப்புள்ள கட்டுரைகள் எதுவும் இல்லை.');
+      } else {
+        toast.success(`${processed}/${total} கட்டுரைகள் தமிழில் மறுபடி மொழிபெயர்க்கப்பட்டன.`);
+      }
+      if (data?.errors?.length) {
+        console.warn('Reprocess errors:', data.errors);
+      }
+    } catch (err) {
+      console.error('Reprocess failed:', err);
+      const message = err instanceof Error ? err.message : 'Reprocess failed';
+      toast.error(`மறுபதிவாக்கம் தோல்வியடைந்தது: ${message}`);
+    } finally {
+      setIsReprocessing(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -117,6 +151,38 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Malay-leak backfill */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Languages className="h-5 w-5 text-primary" />
+              மலாய் தலைப்புகளை தமிழுக்கு மாற்று
+            </CardTitle>
+            <CardDescription>
+              மொழிபெயர்ப்பு தோல்வியடைந்து மலாய் தலைப்புடன் வெளியிடப்பட்ட கட்டுரைகளை மீண்டும் செயலாக்கவும். ஒரே நேரத்தில் 10 கட்டுரைகள் வரை செயலாக்கப்படும்.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={handleReprocessMalayLeak}
+              disabled={isReprocessing}
+              className="w-full sm:w-auto"
+            >
+              {isReprocessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  செயலாக்கப்படுகிறது...
+                </>
+              ) : (
+                <>
+                  <Languages className="mr-2 h-4 w-4" />
+                  மலாய் தலைப்புள்ள கட்டுரைகளை மறுபடி மொழிபெயர்
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
 
         {/* Info */}
         <Card>
