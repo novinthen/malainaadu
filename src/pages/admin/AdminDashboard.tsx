@@ -26,6 +26,9 @@ interface Stats {
   publishedArticles: number;
   totalViews: number;
   activeSources: number;
+  totalVisitors: number;
+  uniqueVisitors: number;
+  todayVisitors: number;
 }
 
 export default function AdminDashboard() {
