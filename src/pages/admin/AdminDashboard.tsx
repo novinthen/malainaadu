@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { FileText, Clock, Eye, Rss, TrendingUp, AlertCircle, BarChart2 } from 'lucide-react';
+import { FileText, Clock, Eye, Rss, TrendingUp, AlertCircle, BarChart2, Users } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,27 +26,40 @@ interface Stats {
   publishedArticles: number;
   totalViews: number;
   activeSources: number;
+  totalVisitors: number;
+  uniqueVisitors: number;
+  todayVisitors: number;
 }
 
 export default function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: async (): Promise<Stats> => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
       const [
         { count: totalArticles },
         { count: pendingArticles },
         { count: publishedArticles },
         { data: viewsData },
         { count: activeSources },
+        { count: totalVisitors },
+        { data: uniqueVisitorsData },
+        { count: todayVisitors },
       ] = await Promise.all([
         supabase.from('articles').select('*', { count: 'exact', head: true }),
         supabase.from('articles').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
         supabase.from('articles').select('*', { count: 'exact', head: true }).eq('status', 'published'),
         supabase.from('articles').select('view_count').eq('status', 'published'),
         supabase.from('sources').select('*', { count: 'exact', head: true }).eq('is_active', true),
+        supabase.from('site_visits').select('*', { count: 'exact', head: true }),
+        supabase.from('site_visits').select('visitor_hash'),
+        supabase.from('site_visits').select('*', { count: 'exact', head: true }).gte('visited_at', today.toISOString()),
       ]);
 
       const totalViews = viewsData?.reduce((sum, a) => sum + (a.view_count || 0), 0) || 0;
+      const uniqueHashes = new Set(uniqueVisitorsData?.map(v => v.visitor_hash) || []);
 
       return {
         totalArticles: totalArticles || 0,
@@ -54,6 +67,9 @@ export default function AdminDashboard() {
         publishedArticles: publishedArticles || 0,
         totalViews,
         activeSources: activeSources || 0,
+        totalVisitors: totalVisitors || 0,
+        uniqueVisitors: uniqueHashes.size,
+        todayVisitors: todayVisitors || 0,
       };
     },
   });
@@ -155,6 +171,48 @@ export default function AdminDashboard() {
                   <div className="text-2xl font-bold">
                     {statsLoading ? '...' : stats?.activeSources}
                   </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Visitor Stats */}
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Jumlah Pelawat</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {statsLoading ? '...' : stats?.totalVisitors.toLocaleString()}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Semua lawatan</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Pelawat Unik</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {statsLoading ? '...' : stats?.uniqueVisitors.toLocaleString()}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Berdasarkan fingerprint pelayar</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Pelawat Hari Ini</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {statsLoading ? '...' : stats?.todayVisitors.toLocaleString()}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Sejak 12:00 AM hari ini</p>
                 </CardContent>
               </Card>
             </div>

@@ -2,12 +2,14 @@ import { ReactNode } from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { BottomNav } from './BottomNav';
+import { useVisitorTracking } from '@/hooks/useVisitorTracking';
 
 interface MainLayoutProps {
   children: ReactNode;
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
+  useVisitorTracking();
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
