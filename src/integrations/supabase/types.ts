@@ -315,6 +315,33 @@ export type Database = {
         }
         Relationships: []
       }
+      site_visits: {
+        Row: {
+          id: string
+          page_path: string
+          referrer: string | null
+          user_agent: string | null
+          visited_at: string
+          visitor_hash: string
+        }
+        Insert: {
+          id?: string
+          page_path?: string
+          referrer?: string | null
+          user_agent?: string | null
+          visited_at?: string
+          visitor_hash: string
+        }
+        Update: {
+          id?: string
+          page_path?: string
+          referrer?: string | null
+          user_agent?: string | null
+          visited_at?: string
+          visitor_hash?: string
+        }
+        Relationships: []
+      }
       sources: {
         Row: {
           created_at: string
