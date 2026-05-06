@@ -9,6 +9,7 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
+  useVisitorTracking();
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
