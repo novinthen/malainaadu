@@ -1,38 +1,41 @@
+## Goal
+Add audio to `malai-naadu-latest-news.mp4`: a Tamil AI voiceover reading the headline + excerpt, layered over a soft cinematic music bed, then re-render the MP4.
 
+## What I need from you
+Your **ElevenLabs API key** (free tier works). I'll request it via the secrets tool once you approve this plan. Get it from elevenlabs.io → Profile → API Keys.
 
-## Fix Malay Titles in Published Articles
+## Steps
 
-### Why this happened
+1. **Store `ELEVENLABS_API_KEY`** as a secret.
 
-When Gemini AI translation fails or returns an empty title, `fetch-rss` silently falls back to the **original Malay title** and still publishes the article. There is no Tamil-script validation, so 28 articles slipped through with Malay titles like *"Hidroponik kampung jadi sumber rezeki"* instead of being translated.
+2. **Generate the voiceover** (one-shot script via `code--exec`, output to `remotion/public/audio/voice.mp3`):
+   - Model: `eleven_multilingual_v2` (handles Tamil)
+   - Voice: Sarah (`EXAVITQu4vr4xnSDxMaL`) — clear female news read
+   - Text: `"விளையாட்டு செய்தி. ISTAF உலகக் கிண்ணம். மலேசியாவுக்கு குவாட்ரன் கோப்பை. மீண்டும் சாம்பியன் பட்டம். <excerpt>"`
+   - Settings: stability 0.6, similarity_boost 0.8, speed 1.0
 
-Also, the `reprocess-articles` function is written in **Bahasa Malaysia** (not Tamil) and only touches content — it can't fix titles.
+3. **Generate the music bed** (ElevenLabs Music API → `remotion/public/audio/music.mp3`):
+   - Prompt: "Cinematic news intro bed, subtle orchestral swell with soft taiko drum and shimmering strings, hopeful and triumphant, no vocals, 13 seconds"
+   - Duration: 13s
 
-### What will be fixed
+4. **Wire audio into `remotion/src/NewsVideo.tsx`**:
+   ```tsx
+   <Audio src={staticFile('audio/music.mp3')} volume={0.18} />
+   <Audio src={staticFile('audio/voice.mp3')} volume={1} startFrom={15} />
+   ```
+   Voiceover delayed ~0.5s so it lands after the brand mast appears. Music ducks naturally via low volume.
 
-**1. Harden `fetch-rss` so Malay titles never reach the site again**
-- After Gemini returns, validate that the new title contains Tamil characters (Unicode range `\u0B80-\u0BFF`).
-- If validation fails on all retries, insert the article with `status: 'pending'` (not `published`) so an admin can review it instead of it appearing on the homepage.
-- Upgrade model to `google/gemini-2.5-flash` via Lovable AI Gateway (already used elsewhere, no API key needed) and remove the direct Google API call. This is more reliable and matches the project's standard.
+5. **Update `remotion/scripts/render-news.mjs`** — remove `muted: true` so audio is encoded into the MP4 (Nix ffmpeg supports `aac` codec, just not `libfdk_aac`; default `aac` works fine).
 
-**2. Rewrite `reprocess-articles` to also retranslate titles into Tamil**
-- Change the prompt from Bahasa Malaysia to Malaysian Tamil (matching `fetch-rss`).
-- Update the function to also retranslate `title` and `excerpt`, not just `content`.
-- Add an option to target articles where `title = original_title` (the Malay-leak signature) so we can backfill the 28 broken ones in batches.
-- Switch to Lovable AI Gateway as well.
+6. **Re-render** → `/mnt/documents/malai-naadu-latest-news.mp4` (overwrites current file).
 
-**3. Backfill the 28 existing Malay-titled articles**
-- After deploying the fixed `reprocess-articles`, trigger it from the admin Settings page in batches of 10 to retranslate titles, excerpts, and content into proper Tamil.
+7. **QA**: probe the MP4 with `ffprobe` to confirm an audio stream is present, and extract a 2-second preview clip to verify audio is audible.
 
-**4. Admin UI tweak**
-- On the admin Settings page (`SettingsPage.tsx`), add a "Reprocess Malay-leaked articles" button that calls the updated function with the new filter, so you can fix this yourself any time it recurs.
+## Technical notes
+- Voiceover length will likely be ~10–12s at speed 1.0; if it overruns the 13s composition I'll either trim the excerpt sentence or bump composition to 420 frames (14s).
+- All audio files live in `remotion/public/audio/` and are referenced via `staticFile()` — they ship with the Remotion bundle, no external hosting needed.
+- One-time generation: once the MP3s exist they're committed, so future re-renders don't re-hit ElevenLabs.
 
-### Files affected
-
-- `supabase/functions/fetch-rss/index.ts` — Tamil-script validation + Lovable AI Gateway + pending fallback
-- `supabase/functions/reprocess-articles/index.ts` — Tamil prompt + retranslate title/excerpt + Malay-leak filter
-- `src/pages/admin/SettingsPage.tsx` — new button to trigger Malay-title backfill
-- One-time invocation of `reprocess-articles` to clean up the existing 28 articles
-
-No database schema changes required.
-
+## Out of scope
+- No UI changes to the web app.
+- Not building a generic "generate video for any article" pipeline — this targets the currently rendered ISTAF article. Say the word if you want me to make it parametric next.
