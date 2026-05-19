@@ -1,0 +1,19 @@
+# மலை நாடு (Malai Naadu)
+
+> Malaysia's leading Tamil news portal — latest news in Tamil covering politics, sports, entertainment, business, national and international affairs, curated from trusted Malaysian sources.
+
+Malai Naadu (மலை நாடு) aggregates and translates news from major Malaysian outlets into Tamil for the Malaysian Tamil community. Content is updated continuously throughout the day.
+
+## Pages
+
+- [Utama / Home](/): Latest headlines and featured stories
+- [Terkini / Latest](/terkini): All articles in chronological order
+- [Trending](/trending): Most-read articles right now
+- [Kategori / Categories](/kategori): Browse by topic
+- [Cari / Search](/cari): Search across all articles
+- [Tentang / About](/tentang): About Malai Naadu
+
+## Optional
+
+- [Privasi / Privacy Policy](/privasi)
+- [Terma / Terms of Service](/terma)
