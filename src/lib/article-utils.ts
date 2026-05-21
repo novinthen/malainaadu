@@ -40,8 +40,12 @@ export function processContentToParagraphs(content: string): string[] {
  * Extract a compelling pull quote from the article content
  */
 export function extractPullQuote(paragraphs: string[]): string | null {
+  // Skip non-prose blocks (markdown image lines, headings)
+  const proseParagraphs = paragraphs.filter(
+    (p) => !/^!\[[^\]]*\]\(\S+\)\s*$/.test(p.trim()) && !p.trim().startsWith('## ')
+  );
   // Look for a compelling sentence from paragraphs 2-4
-  for (const p of paragraphs.slice(1, 5)) {
+  for (const p of proseParagraphs.slice(1, 5)) {
     const sentences = p.match(/[^.!?]+[.!?]+/g) || [];
     const quote = sentences.find(s => s.length > 60 && s.length < 180);
     if (quote) return quote.trim();
