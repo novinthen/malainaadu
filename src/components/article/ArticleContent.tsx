@@ -39,11 +39,12 @@ export function ArticleContent({ paragraphs, pullQuote }: ArticleContentProps) {
         if (block.kind === 'image') {
           return (
             <figure key={i} className="not-prose my-8">
-              <OptimizedImage
+              <img
                 src={block.src}
                 alt={block.alt}
-                className="w-full rounded-lg"
-                aspectRatio="16/10"
+                loading="eager"
+                decoding="async"
+                className="w-full rounded-lg object-cover"
               />
               {block.alt && (
                 <figcaption className="mt-2 text-center text-sm text-muted-foreground">
