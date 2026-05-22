@@ -4,49 +4,49 @@
   <!-- Static Pages -->
   <url>
     <loc>https://malainaadu.com/</loc>
-    <lastmod>2026-05-21T09:53:44.171Z</lastmod>
+    <lastmod>2026-05-22T00:53:36.778Z</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://malainaadu.com/terkini</loc>
-    <lastmod>2026-05-21T09:53:44.171Z</lastmod>
+    <lastmod>2026-05-22T00:53:36.778Z</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://malainaadu.com/trending</loc>
-    <lastmod>2026-05-21T09:53:44.171Z</lastmod>
+    <lastmod>2026-05-22T00:53:36.778Z</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://malainaadu.com/kategori</loc>
-    <lastmod>2026-05-21T09:53:44.171Z</lastmod>
+    <lastmod>2026-05-22T00:53:36.778Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://malainaadu.com/cari</loc>
-    <lastmod>2026-05-21T09:53:44.171Z</lastmod>
+    <lastmod>2026-05-22T00:53:36.778Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://malainaadu.com/tentang</loc>
-    <lastmod>2026-05-21T09:53:44.171Z</lastmod>
+    <lastmod>2026-05-22T00:53:36.778Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://malainaadu.com/privasi</loc>
-    <lastmod>2026-05-21T09:53:44.171Z</lastmod>
+    <lastmod>2026-05-22T00:53:36.778Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://malainaadu.com/terma</loc>
-    <lastmod>2026-05-21T09:53:44.171Z</lastmod>
+    <lastmod>2026-05-22T00:53:36.778Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -141,6 +141,160 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://malainaadu.com/berita/pocong-di-tangerang-disahkan-berita-palsu-a621cb73</loc>
+    <lastmod>2026-05-22T00:15:18.606045+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <news:news>
+      <news:publication>
+        <news:name>மலேசியா செய்தி </news:name>
+        <news:language>ms</news:language>
+      </news:publication>
+      <news:publication_date>2026-05-22T08:07:00+00:00</news:publication_date>
+      <news:title>டேன்செராங்கில் &apos;போச்சோங்&apos;: வதந்தி என காவல்துறை உறுதி!</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://malainaadu.com/berita/risiko-gelombang-kedua-krisis-tenaga-pru16-mungkin-awal-2027-85ede02a</loc>
+    <lastmod>2026-05-22T00:15:24.295072+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <news:news>
+      <news:publication>
+        <news:name>மலேசியா செய்தி </news:name>
+        <news:language>ms</news:language>
+      </news:publication>
+      <news:publication_date>2026-05-22T08:00:00+00:00</news:publication_date>
+      <news:title>எரிசக்தி நெருக்கடி அபாயம்; 16ஆவது பொதுத் தேர்தல் 2027 தொடக்கத்தில்?</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://malainaadu.com/berita/piala-datuk-mokhtar-dahari-b-18-smk-dato-harun-tekad-lengkap-9482c11f</loc>
+    <lastmod>2026-05-22T00:15:29.924908+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <news:news>
+      <news:publication>
+        <news:name>மலேசியா செய்தி </news:name>
+        <news:language>ms</news:language>
+      </news:publication>
+      <news:publication_date>2026-05-22T07:50:00+00:00</news:publication_date>
+      <news:title>டத்தோ ஹாரூன் இடைநிலைப் பள்ளி மோக்தார் டஹாரி கிண்ண இறுதிப் போட்டியில்!</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://malainaadu.com/berita/perlu-ada-kesedaran-tentang-hubungan-toksik-755b5c2e</loc>
+    <lastmod>2026-05-22T00:15:35.203442+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <news:news>
+      <news:publication>
+        <news:name>மலேசியா செய்தி </news:name>
+        <news:language>ms</news:language>
+      </news:publication>
+      <news:publication_date>2026-05-22T07:40:00+00:00</news:publication_date>
+      <news:title>நச்சுத்தன்மை வாய்ந்த உறவுகள் குறித்த விழிப்புணர்வு அவசியம்</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://malainaadu.com/berita/lelaki-parah-dirempuh-kereta-api-ketika-buang-air-kecil-deka-aa7663fa</loc>
+    <lastmod>2026-05-22T00:15:35.747387+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <news:news>
+      <news:publication>
+        <news:name>மலேசியா செய்தி </news:name>
+        <news:language>ms</news:language>
+      </news:publication>
+      <news:publication_date>2026-05-22T07:38:00+00:00</news:publication_date>
+      <news:title>தண்டவாளத்திற்கருகே சிறுநீர் கழித்தவர் ரயிலால் மோதப்பட்டு படுகாயம்!</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://malainaadu.com/berita/lima-prinsip-satu-pengajaran-6dc55a2a</loc>
+    <lastmod>2026-05-22T00:00:20.581205+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <news:news>
+      <news:publication>
+        <news:name>மலேசியா செய்தி </news:name>
+        <news:language>ms</news:language>
+      </news:publication>
+      <news:publication_date>2026-05-22T07:10:00+00:00</news:publication_date>
+      <news:title>ஐந்து கொள்கைகள், ஒரு பாடம்: சுல்தான் ஷராபுடினின் கவலைகள்!</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://malainaadu.com/berita/era-kejatuhan-netanyahu-kian-hampir-c01a1679</loc>
+    <lastmod>2026-05-22T00:00:26.53264+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <news:news>
+      <news:publication>
+        <news:name>மலேசியா செய்தி </news:name>
+        <news:language>ms</news:language>
+      </news:publication>
+      <news:publication_date>2026-05-22T07:00:00+00:00</news:publication_date>
+      <news:title>நெதன்யாஹுவின் அரசியல் சகாப்தம் முடிவுக்கு வருகிறதா?</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://malainaadu.com/berita/layanan-terhadap-aktivis-sumud-flotilla-itali-minta-eu-kenak-077b3435</loc>
+    <lastmod>2026-05-22T00:00:44.342653+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <news:news>
+      <news:publication>
+        <news:name>மலேசியா செய்தி </news:name>
+        <news:language>ms</news:language>
+      </news:publication>
+      <news:publication_date>2026-05-22T00:12:00+00:00</news:publication_date>
+      <news:title>சுமுட் ஃபுளோட்டிலா: இத்தாலி சீறும்; பென்-கிவிர் மீது தடை விதிக்க EU-ஐ கேட்டது!</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://malainaadu.com/berita/letupan-di-tapak-ekspo-dua-lelaki-ditahan-bantu-siasatan-3d998b8c</loc>
+    <lastmod>2026-05-22T00:00:48.925556+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <news:news>
+      <news:publication>
+        <news:name>மலேசியா செய்தி </news:name>
+        <news:language>ms</news:language>
+      </news:publication>
+      <news:publication_date>2026-05-21T23:44:00+00:00</news:publication_date>
+      <news:title>சுங்கை பட்டாணி: எரிவாயு வெடிப்பு - இருவர் கைது!</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://malainaadu.com/berita/final-piala-malaysia-rapid-kl-lanjut-operasi-lrt-bukit-jalil-330fbf61</loc>
+    <lastmod>2026-05-22T00:15:11.776088+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <news:news>
+      <news:publication>
+        <news:name>மலேசியா செய்தி </news:name>
+        <news:language>ms</news:language>
+      </news:publication>
+      <news:publication_date>2026-05-21T22:34:00+00:00</news:publication_date>
+      <news:title>மலேசியக் கிண்ண இறுதியாட்டம்: LRT Bukit Jalil சேவை நீட்டிப்பு!</news:title>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://malainaadu.com/berita/timbalan-menteri-yuneswaran-sampaikan-takziah-kepada-keluarg-53ad0de8</loc>
+    <lastmod>2026-05-22T00:00:14.20699+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <news:news>
+      <news:publication>
+        <news:name>மலேசியா செய்தி </news:name>
+        <news:language>ms</news:language>
+      </news:publication>
+      <news:publication_date>2026-05-21T12:10:36.512648+00:00</news:publication_date>
+      <news:title>கம்போங் காசிப்பிள்ளை RT முன்னோடியின் மகன் கார்த்திக்கு துணையமைச்சர் யுனேஸ்வரன் ஆறுதல்</news:title>
+    </news:news>
+  </url>
+  <url>
     <loc>https://malainaadu.com/berita/empat-motosikal-polis-trafik-ipd-pasir-puteh-terbakar-bda9d2c7</loc>
     <lastmod>2026-05-21T00:15:14.48167+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -198,7 +352,7 @@
   </url>
   <url>
     <loc>https://malainaadu.com/berita/gabriel-sindir-penyokong-man-city-tular-dengan-isu-botol-ars-33715814</loc>
-    <lastmod>2026-05-21T00:15:31.567422+00:00</lastmod>
+    <lastmod>2026-05-21T12:10:36.512648+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <news:news>
@@ -369,140 +523,60 @@
     <lastmod>2026-05-20T00:00:28.972768+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <news:news>
-      <news:publication>
-        <news:name>மலேசியா செய்தி </news:name>
-        <news:language>ms</news:language>
-      </news:publication>
-      <news:publication_date>2026-05-19T23:55:00+00:00</news:publication_date>
-      <news:title>ஊடகவியலாளர்கள் மீதான அச்சுறுத்தல் கண்டிக்கத்தக்கது - ஜோகூர் மாநில ஆட்சிக்குழு</news:title>
-    </news:news>
   </url>
   <url>
     <loc>https://malainaadu.com/berita/polis-johor-siasat-dakwaan-berlaku-kekasaran-ketika-perhimpu-12728522</loc>
     <lastmod>2026-05-20T00:00:34.07567+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <news:news>
-      <news:publication>
-        <news:name>மலேசியா செய்தி </news:name>
-        <news:language>ms</news:language>
-      </news:publication>
-      <news:publication_date>2026-05-19T23:43:00+00:00</news:publication_date>
-      <news:title>ஜோகூர்: ஆர்ப்பாட்டத்தில் நடந்த வன்முறை குறித்து காவல்துறை விசாரணை</news:title>
-    </news:news>
   </url>
   <url>
     <loc>https://malainaadu.com/berita/lima-prinsip-rukun-negara-perlu-difahami-secara-menyeluruh-r-82d93d0d</loc>
     <lastmod>2026-05-20T00:00:39.085899+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <news:news>
-      <news:publication>
-        <news:name>மலேசியா செய்தி </news:name>
-        <news:language>ms</news:language>
-      </news:publication>
-      <news:publication_date>2026-05-19T23:34:00+00:00</news:publication_date>
-      <news:title>ரூக்குன் நெகாரா: ஐந்து கொள்கைகளையும் புரிந்து கொள்ள வேண்டும் - ரோனி லியூ</news:title>
-    </news:news>
   </url>
   <url>
     <loc>https://malainaadu.com/berita/billie-jean-king-akhirnya-bergelar-graduan-selepas-61-tahun-75dd8f17</loc>
     <lastmod>2026-05-20T00:15:08.78566+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <news:news>
-      <news:publication>
-        <news:name>மலேசியா செய்தி </news:name>
-        <news:language>ms</news:language>
-      </news:publication>
-      <news:publication_date>2026-05-19T23:14:00+00:00</news:publication_date>
-      <news:title>பில்லி ஜீன் கிங்: 61 ஆண்டுகளுக்குப் பிறகு பட்டம் பெற்ற டென்னிஸ் ஜாம்பவான்!</news:title>
-    </news:news>
   </url>
   <url>
     <loc>https://malainaadu.com/berita/piala-dunia-istaf-malaysia-pertahan-kejuaraan-kuadran-89feb34f</loc>
     <lastmod>2026-05-19T15:15:16.363969+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <news:news>
-      <news:publication>
-        <news:name>மலேசியா செய்தி </news:name>
-        <news:language>ms</news:language>
-      </news:publication>
-      <news:publication_date>2026-05-19T23:02:00+00:00</news:publication_date>
-      <news:title>ISTAF உலகக் கிண்ணம்: மலேசியாவுக்கு குவாட்ரன் கோப்பை! மீண்டும் சாம்பியன் பட்டம்!</news:title>
-    </news:news>
   </url>
   <url>
     <loc>https://malainaadu.com/berita/16-pelapis-jdt-dipanggil-perkuat-harimau-muda-b-19-4e827453</loc>
     <lastmod>2026-05-19T15:15:22.300881+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <news:news>
-      <news:publication>
-        <news:name>மலேசியா செய்தி </news:name>
-        <news:language>ms</news:language>
-      </news:publication>
-      <news:publication_date>2026-05-19T22:57:00+00:00</news:publication_date>
-      <news:title>JDT அகாடமியின் 16 இளம்படை வீரர்கள் ஹரிமாவ் மூடா B-19 அணியில் இணைந்தனர்!</news:title>
-    </news:news>
   </url>
   <url>
     <loc>https://malainaadu.com/berita/pkr-kepong-gesa-jangan-politikkan-kad-janji-temu-klinik-dala-1564cf36</loc>
     <lastmod>2026-05-19T15:15:30.004911+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <news:news>
-      <news:publication>
-        <news:name>மலேசியா செய்தி </news:name>
-        <news:language>ms</news:language>
-      </news:publication>
-      <news:publication_date>2026-05-19T22:48:00+00:00</news:publication_date>
-      <news:title>கிளினிக் சந்திப்புக் கடிதங்களை சீன மொழியில் அரசியல்மயமாக்க வேண்டாம்: PKR கெப்போங்</news:title>
-    </news:news>
   </url>
   <url>
     <loc>https://malainaadu.com/berita/hormati-institusi-raja-jangan-pilih-perlembagaan-ikut-kepent-7dc76648</loc>
     <lastmod>2026-05-19T15:15:35.406581+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <news:news>
-      <news:publication>
-        <news:name>மலேசியா செய்தி </news:name>
-        <news:language>ms</news:language>
-      </news:publication>
-      <news:publication_date>2026-05-19T22:40:00+00:00</news:publication_date>
-      <news:title>அரச நிறுவனத்தை மதித்திடுங்கள்: அரசியல் லாபத்திற்காக அரசியலமைப்பைத் தேர்ந்தெடுக்க வேண்டாம்</news:title>
-    </news:news>
   </url>
   <url>
     <loc>https://malainaadu.com/berita/warga-emas-memandu-lawan-arus-dakwa-tersesat-jalan-pulang-3f542266</loc>
     <lastmod>2026-05-19T15:30:14.148371+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <news:news>
-      <news:publication>
-        <news:name>மலேசியா செய்தி </news:name>
-        <news:language>ms</news:language>
-      </news:publication>
-      <news:publication_date>2026-05-19T22:11:00+00:00</news:publication_date>
-      <news:title>வயோதிபப் பெண் வழி தவறி எதிர்த்திசையில் வாகனம் செலுத்திய சம்பவம்!</news:title>
-    </news:news>
   </url>
   <url>
     <loc>https://malainaadu.com/berita/polis-tahan-enam-individu-bongkar-vape-disyaki-campur-dadah-01df521f</loc>
     <lastmod>2026-05-20T00:00:18.249904+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <news:news>
-      <news:publication>
-        <news:name>மலேசியா செய்தி </news:name>
-        <news:language>ms</news:language>
-      </news:publication>
-      <news:publication_date>2026-05-19T14:31:25+00:00</news:publication_date>
-      <news:title>போதைப்பொருள் கலந்த வேப்: ஆறு பேர் கைது, கும்பல் பந்தம் உடைக்கப்பட்டது</news:title>
-    </news:news>
   </url>
   <url>
     <loc>https://malainaadu.com/berita/atlet-sabah-raih-pingat-sukan-sea-para-asean-thailand-terima-d7de6c02</loc>
